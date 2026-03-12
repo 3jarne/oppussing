@@ -319,6 +319,89 @@
 
     .btn:hover { background: var(--color-accent-hover); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-sm { padding: var(--space-xs) var(--space-md); font-size: 0.75rem; }
+
+    /* === Edit mode === */
+    .edit-toolbar {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+      margin-bottom: var(--space-lg);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      position: sticky;
+      top: 57px;
+      z-index: 10;
+    }
+
+    .edit-toolbar .btn { margin-left: auto; }
+    .edit-toolbar .edit-status { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+
+    .editing [contenteditable="true"] {
+      outline: none;
+      border-bottom: 1px dashed var(--color-border);
+      min-height: 1em;
+    }
+
+    .editing [contenteditable="true"]:focus {
+      border-bottom-color: var(--color-accent);
+    }
+
+    .editing td[contenteditable="true"] { border-bottom: 1px solid var(--color-border); }
+    .editing td[contenteditable="true"]:focus { background: var(--color-surface); }
+
+    .editing td .pill-select {
+      appearance: none;
+      border: none;
+      background: none;
+      font-family: var(--font-family);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 2px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .pill-select.pill-lav { background: #e8e8e8; color: #444; }
+    .pill-select.pill-middels { background: #d0d0d0; color: #333; }
+    .pill-select.pill-hog { background: #1a1a1a; color: #fff; }
+    .pill-select.pill-sjolv { background: #e8e8e8; color: #444; }
+    .pill-select.pill-handverkar { background: #1a1a1a; color: #fff; }
+
+    .row-delete {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      padding: 2px 6px;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .editing tr:hover .row-delete { opacity: 1; }
+    .row-delete:hover { color: #c44; background: var(--color-surface); }
+
+    .add-row-btn {
+      display: block;
+      width: 100%;
+      padding: var(--space-sm);
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius);
+      background: none;
+      color: var(--color-text-muted);
+      font-family: var(--font-family);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      margin-top: calc(-1 * var(--space-lg));
+      margin-bottom: var(--space-xl);
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .add-row-btn:hover { border-color: var(--color-accent); color: var(--color-text); }
 
     /* === Modal === */
     .modal-backdrop {
@@ -682,6 +765,11 @@
       var dateHtml = '<div class="date-label">Sist oppdatert: ' + formatDate(room.lastModified) + '</div>';
       html = html.replace(/(<\/h1>)/, '$1' + dateHtml);
 
+      // Add edit button if authenticated
+      if (hasToken()) {
+        html += '<button class="btn btn-ghost btn-sm" id="edit-btn" style="margin-top:var(--space-lg)">Rediger</button>';
+      }
+
       // Add upload area if authenticated
       if (hasToken()) {
         html += '<div class="upload-area" id="upload-area" data-slug="' + slug + '">';
@@ -696,7 +784,11 @@
       document.getElementById('content').innerHTML = html;
       updateSidebarActive(slug);
 
-      if (hasToken()) setupUpload(slug);
+      if (hasToken()) {
+        setupUpload(slug);
+        var editBtn = document.getElementById('edit-btn');
+        if (editBtn) editBtn.addEventListener('click', function() { enterEditMode(slug); });
+      }
     }
 
     // Floor mapping
@@ -785,6 +877,253 @@
       await loadRooms();
       renderRoom(slug);
       renderSidebar();
+    }
+
+    // === Edit mode ===
+    var isEditing = false;
+
+    function enterEditMode(slug) {
+      isEditing = true;
+      var content = document.getElementById('content');
+      content.classList.add('editing');
+
+      // Add edit toolbar
+      var toolbar = document.createElement('div');
+      toolbar.className = 'edit-toolbar';
+      toolbar.id = 'edit-toolbar';
+      toolbar.innerHTML = '<span class="edit-status">Redigeringsmodus</span>' +
+        '<button class="btn btn-ghost btn-sm" onclick="cancelEdit(\'' + slug + '\')">Avbryt</button>' +
+        '<button class="btn btn-sm" id="save-btn" onclick="saveEdit(\'' + slug + '\')">Lagre</button>';
+      content.insertBefore(toolbar, content.firstChild);
+
+      // Make headings editable
+      content.querySelectorAll('h1, h2, h3, p, li').forEach(function(el) {
+        // Skip date labels and elements inside toolbar
+        if (el.closest('.edit-toolbar') || el.closest('.upload-area') || el.classList.contains('date-label')) return;
+        if (el.querySelector('img')) return;
+        el.setAttribute('contenteditable', 'true');
+      });
+
+      // Make table cells editable with special handling for pills
+      content.querySelectorAll('table').forEach(function(table) {
+        // Skip sum row
+        table.querySelectorAll('tbody tr:not(.table-sum)').forEach(function(tr) {
+          var cells = tr.querySelectorAll('td');
+          cells.forEach(function(td) {
+            var pill = td.querySelector('.pill');
+            if (pill) {
+              // Replace pill with select dropdown
+              var cls = pill.className.replace('pill ', '');
+              var type = cls.includes('sjolv') || cls.includes('handverkar') ? 'utforing' : 'kompleksitet';
+              var current = pill.textContent.trim();
+              var select = document.createElement('select');
+              select.className = 'pill-select ' + cls;
+              if (type === 'kompleksitet') {
+                select.innerHTML = '<option>Lav</option><option>Middels</option><option>H\u00f8g</option>';
+              } else {
+                select.innerHTML = '<option>Sj\u00f8lv</option><option>Handverkar</option>';
+              }
+              select.value = current;
+              select.addEventListener('change', function() {
+                var map = {'Lav':'pill-lav','Middels':'pill-middels','H\u00f8g':'pill-hog','Sj\u00f8lv':'pill-sjolv','Handverkar':'pill-handverkar'};
+                this.className = 'pill-select ' + (map[this.value] || 'pill-lav');
+              });
+              td.innerHTML = '';
+              td.appendChild(select);
+            } else {
+              td.setAttribute('contenteditable', 'true');
+            }
+          });
+
+          // Add delete button
+          var delTd = document.createElement('td');
+          delTd.style.width = '30px';
+          delTd.innerHTML = '<button class="row-delete" title="Slett rad">&times;</button>';
+          delTd.querySelector('button').addEventListener('click', function() { tr.remove(); });
+          tr.appendChild(delTd);
+        });
+
+        // Add extra th for delete column
+        var lastTh = document.createElement('th');
+        lastTh.style.width = '30px';
+        table.querySelector('thead tr').appendChild(lastTh);
+
+        // Add "add row" button after table
+        var addBtn = document.createElement('button');
+        addBtn.className = 'add-row-btn';
+        addBtn.textContent = '+ Legg til rad';
+        addBtn.setAttribute('data-table-id', table.id || ('tbl-' + Math.random().toString(36).slice(2)));
+        table.id = addBtn.getAttribute('data-table-id');
+        addBtn.addEventListener('click', function() { addTableRow(table); });
+        table.parentNode.insertBefore(addBtn, table.nextSibling);
+      });
+    }
+
+    function addTableRow(table) {
+      var headerCells = table.querySelectorAll('thead th');
+      var numCols = headerCells.length - 1; // minus delete col
+      var tbody = table.querySelector('tbody');
+      // Insert before sum row if exists
+      var sumRow = tbody.querySelector('.table-sum');
+      var tr = document.createElement('tr');
+      for (var i = 0; i < numCols; i++) {
+        var hText = headerCells[i].textContent.toLowerCase();
+        var td = document.createElement('td');
+        if (hText === 'kompleksitet') {
+          var sel = document.createElement('select');
+          sel.className = 'pill-select pill-lav';
+          sel.innerHTML = '<option>Lav</option><option>Middels</option><option>H\u00f8g</option>';
+          sel.addEventListener('change', function() {
+            var map = {'Lav':'pill-lav','Middels':'pill-middels','H\u00f8g':'pill-hog'};
+            this.className = 'pill-select ' + (map[this.value] || 'pill-lav');
+          });
+          td.appendChild(sel);
+        } else if (hText === 'utf\u00f8ring' || hText === 'utforing') {
+          var sel2 = document.createElement('select');
+          sel2.className = 'pill-select pill-sjolv';
+          sel2.innerHTML = '<option>Sj\u00f8lv</option><option>Handverkar</option>';
+          sel2.addEventListener('change', function() {
+            var map = {'Sj\u00f8lv':'pill-sjolv','Handverkar':'pill-handverkar'};
+            this.className = 'pill-select ' + (map[this.value] || 'pill-sjolv');
+          });
+          td.appendChild(sel2);
+        } else if (hText === 'kostnad') {
+          td.setAttribute('contenteditable', 'true');
+          td.textContent = '0 kr';
+        } else {
+          td.setAttribute('contenteditable', 'true');
+          td.textContent = '';
+        }
+        tr.appendChild(td);
+      }
+      // Delete button
+      var delTd = document.createElement('td');
+      delTd.style.width = '30px';
+      delTd.innerHTML = '<button class="row-delete" title="Slett rad" style="opacity:1">&times;</button>';
+      delTd.querySelector('button').addEventListener('click', function() { tr.remove(); });
+      tr.appendChild(delTd);
+
+      if (sumRow) tbody.insertBefore(tr, sumRow);
+      else tbody.appendChild(tr);
+
+      // Focus first cell
+      var first = tr.querySelector('[contenteditable]');
+      if (first) first.focus();
+    }
+
+    function cancelEdit(slug) {
+      isEditing = false;
+      renderRoom(slug);
+    }
+
+    async function saveEdit(slug) {
+      var room = ROOMS.find(function(r) { return r.slug === slug; });
+      if (!room) return;
+
+      var btn = document.getElementById('save-btn');
+      btn.disabled = true;
+      btn.textContent = 'Lagrar...';
+
+      try {
+        var newMarkdown = domToMarkdown();
+
+        // Get latest sha
+        var fileData = await apiFetch('/repos/' + REPO + '/contents/' + encodeURIComponent(room.path));
+        var encodedContent = btoa(unescape(encodeURIComponent(newMarkdown)));
+
+        await fetch(API + '/repos/' + REPO + '/contents/' + encodeURIComponent(room.path), {
+          method: 'PUT',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+          body: JSON.stringify({
+            message: 'Oppdater ' + room.name,
+            content: encodedContent,
+            sha: fileData.sha
+          })
+        });
+
+        // Update local data
+        room.markdown = newMarkdown;
+        room.sha = fileData.sha;
+        localStorage.removeItem(CACHE_KEY);
+        isEditing = false;
+        await loadRooms();
+        renderRoom(slug);
+        renderSidebar();
+      } catch(err) {
+        btn.disabled = false;
+        btn.textContent = 'Lagre';
+        alert('Feil ved lagring: ' + err.message);
+      }
+    }
+
+    function domToMarkdown() {
+      var content = document.getElementById('content');
+      var md = '';
+      var children = content.children;
+      for (var i = 0; i < children.length; i++) {
+        var el = children[i];
+        if (el.classList.contains('edit-toolbar') || el.classList.contains('upload-area') ||
+            el.classList.contains('progress-bar') || el.classList.contains('upload-status') ||
+            el.classList.contains('date-label')) continue;
+        if (el.classList.contains('add-row-btn')) continue;
+
+        var tag = el.tagName;
+        if (tag === 'H1') md += '# ' + el.textContent.trim() + '\n\n';
+        else if (tag === 'H2') md += '## ' + el.textContent.trim() + '\n\n';
+        else if (tag === 'H3') md += '### ' + el.textContent.trim() + '\n\n';
+        else if (tag === 'P') {
+          var text = el.textContent.trim();
+          if (text) md += text + '\n\n';
+        }
+        else if (tag === 'BLOCKQUOTE') md += '> ' + el.textContent.trim() + '\n\n';
+        else if (tag === 'UL') {
+          el.querySelectorAll('li').forEach(function(li) {
+            var t = li.textContent.trim();
+            md += '- ' + (t || '') + '\n';
+          });
+          md += '\n';
+        }
+        else if (tag === 'HR') md += '---\n\n';
+        else if (tag === 'IMG') {
+          md += '![' + (el.alt || '') + '](' + el.getAttribute('src') + ')\n\n';
+        }
+        else if (tag === 'TABLE') {
+          md += tableToMarkdown(el) + '\n';
+        }
+      }
+      return md.trimEnd() + '\n';
+    }
+
+    function tableToMarkdown(table) {
+      var headers = [];
+      table.querySelectorAll('thead th').forEach(function(th) {
+        var t = th.textContent.trim();
+        if (t) headers.push(t);
+      });
+      if (headers.length === 0) return '';
+
+      var md = '| ' + headers.join(' | ') + ' |\n';
+      md += '|' + headers.map(function() { return '---'; }).join('|') + '|\n';
+
+      table.querySelectorAll('tbody tr:not(.table-sum)').forEach(function(tr) {
+        var cells = [];
+        var tds = tr.querySelectorAll('td');
+        for (var i = 0; i < tds.length; i++) {
+          var td = tds[i];
+          // Skip delete button column
+          if (td.querySelector('.row-delete')) continue;
+          var select = td.querySelector('select');
+          if (select) {
+            cells.push(select.value);
+          } else {
+            cells.push(td.textContent.trim());
+          }
+        }
+        if (cells.length > 0 && cells.some(function(c) { return c; })) {
+          md += '| ' + cells.join(' | ') + ' |\n';
+        }
+      });
+      return md;
     }
 
     // === Routing ===
