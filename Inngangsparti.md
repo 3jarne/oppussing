@@ -1,4 +1,4 @@
-# Fasade og inngangsparti
+# Inngangsparti
 
 ## Ideer
 - 
