@@ -1,4 +1,4 @@
-# KjøkkenMale
+# Kjøkken
 
 ## Planer
 
