@@ -2,14 +2,14 @@
 
 ## Planer
 
-| Kva | Kompleksitet | Kostnad | Utføring |
+| Hva | Kompleksitet | Kostnad | Utføring |
 |-----|-------------|--------|----------|
-| Skillevegg mot kjøkken med hyller | Middels | 15 000 kr | Handverkar |
+| Skillevegg mot kjøkken med hyller | Middels | 15 000 kr | Håndverker |
 
 ## Idéer
 
 -
 
-## Bilder/inspirasjon
+## Referansebilder
 
 -
