@@ -3,7 +3,7 @@
 ## Planer
 
 | Hva | Kompleksitet | Kostnad | Utføring |
-|-----|-------------|--------|----------|
+|---|---|---|---|
 | Male kjøkkenfrontene | Lav | 2 000 kr | Selv |
 | Fjerne det store skapet over langsiden | Lav | 0 kr | Selv |
 | Lage en enkelthylle på toppen av flisene | Lav | 1 500 kr | Selv |
@@ -19,4 +19,4 @@
 
 ## Referansebilder
 
-![A03C563F-6E50-4426-AABA-B8D67032452C.png](bilder/kjokken/1773319844622.png)
+![Kjøkken med nye fliser og underlys.](bilder/kjokken/1773319844622.png)
