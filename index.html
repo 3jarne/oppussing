@@ -217,6 +217,14 @@
     .upload-area input { display: none; }
     .upload-area p { color: var(--color-text-muted); font-size: var(--font-size-sm); }
     .upload-area .upload-icon { font-size: 2rem; margin-bottom: var(--space-sm); }
+    .upload-area.uploading { pointer-events: none; opacity: 0.6; }
+
+    .progress-bar { height: 4px; background: var(--color-border); border-radius: 2px; margin-top: var(--space-md); overflow: hidden; display: none; }
+    .progress-bar.visible { display: block; }
+    .progress-bar-fill { height: 100%; background: var(--color-accent); border-radius: 2px; transition: width 0.3s; width: 0%; }
+
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .upload-status.uploading { animation: pulse 1.5s infinite; }
 
     .upload-preview {
       display: flex;
@@ -576,6 +584,7 @@
         html += '<div class="upload-icon">&#128247;</div>';
         html += '<p>Dra bilete hit eller klikk for &aring; laste opp</p>';
         html += '</div>';
+        html += '<div class="progress-bar" id="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>';
         html += '<div class="upload-status" id="upload-status"></div>';
       }
 
@@ -620,25 +629,43 @@
 
     async function handleFiles(files, slug) {
       var status = document.getElementById('upload-status');
-      for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        if (!file.type.startsWith('image/')) continue;
-        status.className = 'upload-status';
-        status.textContent = 'Lastar opp ' + file.name + '...';
+      var area = document.getElementById('upload-area');
+      var bar = document.getElementById('progress-bar');
+      var fill = document.getElementById('progress-fill');
+      var imageFiles = Array.from(files).filter(function(f) { return f.type.startsWith('image/'); });
+      if (imageFiles.length === 0) return;
+
+      area.classList.add('uploading');
+      bar.classList.add('visible');
+
+      for (var i = 0; i < imageFiles.length; i++) {
+        var file = imageFiles[i];
+        var pct = Math.round((i / imageFiles.length) * 100);
+        fill.style.width = pct + '%';
+        status.className = 'upload-status uploading';
+        status.textContent = 'Lastar opp ' + file.name + ' (' + (i+1) + '/' + imageFiles.length + ')...';
         try {
           await uploadImage(file, slug);
-          status.className = 'upload-status success';
-          status.textContent = file.name + ' lasta opp!';
-          // Reload room data
-          localStorage.removeItem(CACHE_KEY);
-          await loadRooms();
-          renderRoom(slug);
-          renderSidebar();
         } catch(err) {
           status.className = 'upload-status error';
-          status.textContent = 'Feil: ' + err.message;
+          status.textContent = 'Feil med ' + file.name + ': ' + err.message;
+          area.classList.remove('uploading');
+          bar.classList.remove('visible');
+          return;
         }
       }
+
+      fill.style.width = '100%';
+      status.className = 'upload-status success';
+      status.textContent = imageFiles.length === 1
+        ? imageFiles[0].name + ' lasta opp!'
+        : imageFiles.length + ' bilete lasta opp!';
+
+      // Reload room data
+      localStorage.removeItem(CACHE_KEY);
+      await loadRooms();
+      renderRoom(slug);
+      renderSidebar();
     }
 
     // === Routing ===
