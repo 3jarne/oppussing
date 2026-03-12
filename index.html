@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oppussing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* === Design Tokens === */
+    :root {
+      --color-bg: #fafaf8;
+      --color-surface: #f0efeb;
+      --color-text: #2c2c2c;
+      --color-text-muted: #6b6b6b;
+      --color-accent: #5a7a6a;
+      --color-accent-hover: #4a6a5a;
+      --color-border: #e0ddd5;
+      --color-card-bg: #ffffff;
+
+      --font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      --font-size-sm: 0.875rem;
+      --font-size-base: 1rem;
+      --font-size-lg: 1.25rem;
+      --font-size-xl: 1.75rem;
+      --line-height: 1.65;
+
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      --space-2xl: 3rem;
+
+      --sidebar-width: 260px;
+      --content-max-width: 720px;
+      --radius: 8px;
+    }
+
+    /* === Reset === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-family);
+      font-size: var(--font-size-base);
+      line-height: var(--line-height);
+      color: var(--color-text);
+      background: var(--color-bg);
+      min-height: 100vh;
+    }
+
+    /* === Header === */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-xl);
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-card-bg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+    }
+
+    .header h1 a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .hamburger {
+      display: none;
+      background: none;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: var(--space-xs) var(--space-sm);
+      font-size: var(--font-size-lg);
+      cursor: pointer;
+      color: var(--color-text);
+      line-height: 1;
+    }
+
+    /* === Layout === */
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 57px);
+    }
+
+    /* === Sidebar === */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: var(--color-surface);
+      border-right: 1px solid var(--color-border);
+      padding: var(--space-lg) 0;
+      overflow-y: auto;
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: var(--space-sm) var(--space-lg);
+      color: var(--color-text);
+      text-decoration: none;
+      font-size: var(--font-size-sm);
+      font-weight: 400;
+      border-left: 3px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .sidebar a:hover {
+      background: var(--color-border);
+    }
+
+    .sidebar a.active {
+      background: var(--color-card-bg);
+      border-left-color: var(--color-accent);
+      font-weight: 500;
+    }
+
+    /* === Main Content === */
+    main {
+      flex: 1;
+      padding: var(--space-2xl);
+      max-width: calc(var(--content-max-width) + var(--space-2xl) * 2);
+    }
+
+    /* === Rendered Markdown === */
+    main h1 { font-size: var(--font-size-xl); font-weight: 600; margin-bottom: var(--space-sm); }
+    main h2 { font-size: var(--font-size-lg); font-weight: 600; margin-top: var(--space-2xl); margin-bottom: var(--space-md); color: var(--color-accent); }
+    main h3 { font-size: var(--font-size-base); font-weight: 600; margin-top: var(--space-xl); margin-bottom: var(--space-sm); }
+
+    main p { margin-bottom: var(--space-md); }
+
+    main ul {
+      list-style: disc;
+      padding-left: var(--space-xl);
+      margin-bottom: var(--space-md);
+    }
+
+    main li { margin-bottom: var(--space-xs); }
+
+    main blockquote {
+      border-left: 3px solid var(--color-accent);
+      padding: var(--space-md) var(--space-lg);
+      margin-bottom: var(--space-md);
+      background: var(--color-surface);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    main img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+      margin: var(--space-md) 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    main a {
+      color: var(--color-accent);
+      text-decoration: underline;
+      text-decoration-color: var(--color-border);
+      text-underline-offset: 2px;
+    }
+
+    main a:hover {
+      text-decoration-color: var(--color-accent);
+    }
+
+    main code {
+      background: var(--color-surface);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: 4px;
+      font-size: var(--font-size-sm);
+    }
+
+    main hr {
+      border: none;
+      border-top: 1px solid var(--color-border);
+      margin: var(--space-xl) 0;
+    }
+
+    .date-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-xl);
+    }
+
+    /* === Landing Page Cards === */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-lg);
+      margin-top: var(--space-xl);
+    }
+
+    .card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      text-decoration: none;
+      color: var(--color-text);
+      transition: box-shadow 0.15s, transform 0.15s;
+      display: block;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transform: translateY(-2px);
+    }
+
+    .card h3 {
+      font-size: var(--font-size-base);
+      font-weight: 600;
+      margin: 0 0 var(--space-sm) 0;
+    }
+
+    .card .card-date {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-sm);
+    }
+
+    .card .card-excerpt {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+
+    .landing-title {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+
+    .landing-subtitle {
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* === Backdrop (mobile) === */
+    .backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 49;
+    }
+
+    .backdrop.visible { display: block; }
+
+    /* === Responsive === */
+    @media (max-width: 768px) {
+      .hamburger { display: block; }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      main {
+        padding: var(--space-lg);
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <button class="hamburger" id="hamburger" aria-label="Meny">&#9776;</button>
+    <h1><a href="#">&#127968; Oppussing</a></h1>
+  </header>
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <ul id="room-list"></ul>
+    </nav>
+    <main id="content"></main>
+  </div>
+  <div class="backdrop" id="backdrop"></div>
+
+  <script src="rooms.js"></script>
+  <script>
+    // --- Utilities ---
+
+    function slugify(name) {
+      return name
+        .toLowerCase()
+        .replace(/ /g, '-')
+        .replace(/ø/g, 'o')
+        .replace(/æ/g, 'ae')
+        .replace(/å/g, 'a');
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      try {
+        return new Intl.DateTimeFormat('nb-NO', {
+          day: 'numeric', month: 'long', year: 'numeric'
+        }).format(new Date(iso));
+      } catch(e) { return iso; }
+    }
+
+    function sortedRooms() {
+      return [...ROOMS].sort((a, b) =>
+        (b.lastModified || '').localeCompare(a.lastModified || '')
+      );
+    }
+
+    // --- Markdown Parser ---
+
+    function parseInline(text) {
+      return text
+        // images
+        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy">')
+        // links
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+        // wiki-links
+        .replace(/\[\[([^\]]+)\]\]/g, function(_, name) {
+          return '<a href="#' + slugify(name) + '">' + name + '</a>';
+        })
+        // bold
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/__(.+?)__/g, '<strong>$1</strong>')
+        // italic
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/_(.+?)_/g, '<em>$1</em>')
+        // inline code
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+    }
+
+    function renderMarkdown(text) {
+      var lines = text.split('\n');
+      var html = '';
+      var i = 0;
+
+      while (i < lines.length) {
+        var line = lines[i];
+
+        // Empty line
+        if (line.trim() === '') { i++; continue; }
+
+        // Headings
+        var headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+        if (headingMatch) {
+          var level = headingMatch[1].length;
+          html += '<h' + level + '>' + parseInline(headingMatch[2]) + '</h' + level + '>';
+          i++; continue;
+        }
+
+        // Horizontal rules
+        if (/^(\*{3,}|-{3,}|_{3,})$/.test(line.trim())) {
+          html += '<hr>';
+          i++; continue;
+        }
+
+        // Blockquotes
+        if (line.match(/^>\s?/)) {
+          var bqLines = [];
+          while (i < lines.length && lines[i].match(/^>\s?/)) {
+            bqLines.push(lines[i].replace(/^>\s?/, ''));
+            i++;
+          }
+          html += '<blockquote><p>' + parseInline(bqLines.join(' ')) + '</p></blockquote>';
+          continue;
+        }
+
+        // Unordered lists
+        if (line.match(/^[-*]\s/)) {
+          var items = [];
+          while (i < lines.length && lines[i].match(/^[-*]\s/)) {
+            var itemText = lines[i].replace(/^[-*]\s/, '').trim();
+            if (itemText) items.push(itemText);
+            i++;
+          }
+          if (items.length > 0) {
+            html += '<ul>';
+            for (var j = 0; j < items.length; j++) {
+              html += '<li>' + parseInline(items[j]) + '</li>';
+            }
+            html += '</ul>';
+          }
+          continue;
+        }
+
+        // Standalone image
+        var imgMatch = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+        if (imgMatch) {
+          html += '<img src="' + imgMatch[2] + '" alt="' + imgMatch[1] + '" loading="lazy">';
+          i++; continue;
+        }
+
+        // Paragraph
+        var pLines = [];
+        while (i < lines.length && lines[i].trim() !== '' && !lines[i].match(/^#{1,6}\s/) && !lines[i].match(/^[-*]\s/) && !lines[i].match(/^>\s?/) && !lines[i].match(/^(\*{3,}|-{3,}|_{3,})$/)) {
+          pLines.push(lines[i]);
+          i++;
+        }
+        html += '<p>' + parseInline(pLines.join(' ')) + '</p>';
+      }
+
+      return html;
+    }
+
+    // --- Rendering ---
+
+    function getExcerpt(markdown) {
+      var lines = markdown.split('\n');
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (!line) continue;
+        if (line.match(/^#{1,6}\s/)) continue;
+        if (line === '-' || line === '- ') continue;
+        // strip markdown syntax for excerpt
+        var clean = line.replace(/^>\s?/, '').replace(/^[-*]\s/, '').trim();
+        if (clean) return clean.length > 120 ? clean.substring(0, 120) + '...' : clean;
+      }
+      return '';
+    }
+
+    function renderLanding() {
+      var rooms = sortedRooms();
+      var html = '<h1 class="landing-title">Oppussing</h1>';
+      html += '<p class="landing-subtitle">Oversikt over rom og område</p>';
+      html += '<div class="card-grid">';
+      for (var i = 0; i < rooms.length; i++) {
+        var r = rooms[i];
+        var excerpt = getExcerpt(r.markdown);
+        html += '<a class="card" href="#' + r.slug + '">';
+        html += '<h3>' + r.name + '</h3>';
+        html += '<div class="card-date">Sist oppdatert: ' + formatDate(r.lastModified) + '</div>';
+        if (excerpt) html += '<div class="card-excerpt">' + excerpt + '</div>';
+        html += '</a>';
+      }
+      html += '</div>';
+      document.getElementById('content').innerHTML = html;
+      updateSidebarActive('');
+    }
+
+    function renderRoom(slug) {
+      var room = null;
+      for (var i = 0; i < ROOMS.length; i++) {
+        if (ROOMS[i].slug === slug) { room = ROOMS[i]; break; }
+      }
+      if (!room) {
+        document.getElementById('content').innerHTML = '<h1>Ikkje funne</h1><p>Rommet finst ikkje. <a href="#">Tilbake til oversikta</a></p>';
+        return;
+      }
+      var html = renderMarkdown(room.markdown);
+      // Insert date label after first heading
+      var dateHtml = '<div class="date-label">Sist oppdatert: ' + formatDate(room.lastModified) + '</div>';
+      html = html.replace(/(<\/h1>)/, '$1' + dateHtml);
+      document.getElementById('content').innerHTML = html;
+      updateSidebarActive(slug);
+    }
+
+    function renderSidebar() {
+      var rooms = sortedRooms();
+      var ul = document.getElementById('room-list');
+      var html = '';
+      for (var i = 0; i < rooms.length; i++) {
+        html += '<li><a href="#' + rooms[i].slug + '" data-slug="' + rooms[i].slug + '">' + rooms[i].name + '</a></li>';
+      }
+      ul.innerHTML = html;
+    }
+
+    function updateSidebarActive(slug) {
+      var links = document.querySelectorAll('#room-list a');
+      for (var i = 0; i < links.length; i++) {
+        links[i].classList.toggle('active', links[i].getAttribute('data-slug') === slug);
+      }
+    }
+
+    // --- Routing ---
+
+    function route() {
+      var slug = location.hash.slice(1);
+      if (!slug) renderLanding();
+      else renderRoom(slug);
+      closeSidebar();
+      window.scrollTo(0, 0);
+    }
+
+    // --- Sidebar toggle (mobile) ---
+
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('backdrop').classList.add('visible');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('backdrop').classList.remove('visible');
+    }
+
+    document.getElementById('hamburger').addEventListener('click', function() {
+      var sidebar = document.getElementById('sidebar');
+      if (sidebar.classList.contains('open')) closeSidebar();
+      else openSidebar();
+    });
+
+    document.getElementById('backdrop').addEventListener('click', closeSidebar);
+
+    // --- Init ---
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderSidebar();
+      route();
+    });
+
+    window.addEventListener('hashchange', route);
+  </script>
+</body>
+</html>
