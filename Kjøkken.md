@@ -2,16 +2,16 @@
 
 ## Ideer
 
-| Kva | Nivå |
-|-----|------|
-| Male kjøkkenfrontane | Lav |
-| Fjerne det store skapet over langsida | Lav |
-| Lage en enkelthylle på toppen av flisene | Lav |
-| Lage sittebenk | Lav |
-| Fliselegge bak peisen | Middels |
-| Fliselegge bak benkeplata | Middels |
-| Bytte ut vifte og rør for ventilasjon | Middels |
-| Sette opp skillevegg | Middels |
+| Kva | Kompleksitet | Kostnad |
+|-----|-------------|--------|
+| Male kjøkkenfrontane | Lav | 2 000 kr |
+| Fjerne det store skapet over langsida | Lav | 0 kr |
+| Lage en enkelthylle på toppen av flisene | Lav | 1 500 kr |
+| Lage sittebenk | Lav | 3 000 kr |
+| Fliselegge bak peisen | Middels | 5 000 kr |
+| Fliselegge bak benkeplata | Middels | 5 000 kr |
+| Bytte ut vifte og rør for ventilasjon | Middels | 8 000 kr |
+| Sette opp skillevegg | Middels | 15 000 kr |
 
 ## Bilder/inspirasjon
 
