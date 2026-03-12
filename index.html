@@ -158,6 +158,9 @@
       font-style: italic;
       margin: 0;
     }
+    .room-header .subtitle.empty {
+      opacity: 0.5;
+    }
 
     .room-header .date-label {
       font-size: var(--font-size-sm);
@@ -940,7 +943,7 @@
       // Build room header: title + subtitle (from blockquote after h1) + date top-right
       var dateStr = formatDate(room.lastModified);
       html = html.replace(/(<h1>.*?<\/h1>)(\s*<blockquote><p>(.*?)<\/p><\/blockquote>)?/, function(match, h1, bqBlock, bqText) {
-        var sub = bqText ? '<p class="subtitle">' + bqText + '</p>' : '';
+        var sub = bqText ? '<p class="subtitle">' + bqText + '</p>' : '<p class="subtitle empty">Ingen beskrivelse</p>';
         return '<div class="room-header"><div class="room-header-left">' + h1 + sub +
           '</div><span class="date-label">Sist oppdatert: ' + dateStr + '</span></div>';
       });
@@ -1083,6 +1086,12 @@
         if (el.closest('.upload-area') || el.classList.contains('date-label')) return;
         if (el.querySelector('img')) return;
         el.setAttribute('contenteditable', 'true');
+      });
+
+      // Clear placeholder text from empty subtitles
+      content.querySelectorAll('.subtitle.empty').forEach(function(el) {
+        el.textContent = '';
+        el.classList.remove('empty');
       });
 
       // Make table cells editable with special handling for pills
