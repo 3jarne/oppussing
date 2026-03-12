@@ -1,7 +1,11 @@
 # Bad nede
 
-## Ideer
-- 
+## Planer
+
+## Idéer
+
+-
 
 ## Bilder/inspirasjon
-- 
+
+-

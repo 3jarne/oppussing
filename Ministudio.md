@@ -1,14 +1,19 @@
-# 🏗️ Ministudio
+# Ministudio
 
 > Bygge lite kontor oppå dagens utebod (lavere nivå, bygd inn i bakken).
 
-## Ideer
-- 
+## Planer
+
+## Idéer
+
+-
 
 ## Praktisk å avklare
+
 - Byggetillatelse?
 - Bæreevne på eksisterende bod
 - Adkomst / trapp opp
 
 ## Bilder/inspirasjon
-- 
+
+-

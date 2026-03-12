@@ -1,6 +1,6 @@
 # Kjøkken
 
-## Ideer
+## Planer
 
 | Kva | Kompleksitet | Kostnad | Utføring |
 |-----|-------------|--------|----------|
@@ -12,6 +12,10 @@
 | Fliselegge bak benkeplata | Middels | 5 000 kr | Handverkar |
 | Bytte ut vifte og rør for ventilasjon | Middels | 8 000 kr | Handverkar |
 | Sette opp skillevegg | Middels | 15 000 kr | Handverkar |
+
+## Idéer
+
+-
 
 ## Bilder/inspirasjon
 

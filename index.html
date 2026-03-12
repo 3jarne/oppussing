@@ -80,6 +80,9 @@
     .hamburger { display: none; }
     .settings-btn { font-size: var(--font-size-base); }
 
+    .header-actions { display: flex; gap: var(--space-sm); align-items: center; }
+    .header-actions:empty { display: none; }
+
     /* === Layout === */
     .layout { display: flex; min-height: calc(100vh - 57px); }
 
@@ -322,22 +325,6 @@
     .btn-sm { padding: var(--space-xs) var(--space-md); font-size: 0.75rem; }
 
     /* === Edit mode === */
-    .edit-toolbar {
-      display: flex;
-      gap: var(--space-sm);
-      align-items: center;
-      margin-bottom: var(--space-lg);
-      padding: var(--space-sm) var(--space-md);
-      background: var(--color-surface);
-      border-radius: var(--radius);
-      position: sticky;
-      top: 57px;
-      z-index: 10;
-    }
-
-    .edit-toolbar .btn { margin-left: auto; }
-    .edit-toolbar .edit-status { font-size: var(--font-size-sm); color: var(--color-text-muted); }
-
     .editing [contenteditable="true"] {
       outline: none;
       border-bottom: 1px dashed var(--color-border);
@@ -402,6 +389,63 @@
     }
 
     .add-row-btn:hover { border-color: var(--color-accent); color: var(--color-text); }
+
+    /* === Image edit overlay === */
+    .img-edit-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .img-edit-wrap img { display: block; }
+
+    .img-edit-actions {
+      position: absolute;
+      top: var(--space-sm);
+      right: var(--space-sm);
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .img-edit-actions button {
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: var(--space-xs) var(--space-sm);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      font-family: var(--font-family);
+      transition: background 0.15s;
+    }
+
+    .img-edit-actions button:hover { background: rgba(0,0,0,0.85); }
+    .img-edit-actions .img-delete:hover { background: rgba(180,40,40,0.85); }
+
+    /* === Card stats === */
+    .card-stats {
+      display: flex;
+      gap: var(--space-md);
+      margin-top: var(--space-sm);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .card-stat { display: flex; align-items: center; gap: var(--space-xs); }
+
+    /* === Empty table placeholder === */
+    .empty-table-placeholder {
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      margin: var(--space-md) 0 var(--space-xl);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .empty-table-placeholder:hover { border-color: var(--color-accent); color: var(--color-text); }
 
     /* === Modal === */
     .modal-backdrop {
@@ -474,6 +518,7 @@
   <header class="header">
     <button class="hamburger" id="hamburger" aria-label="Meny">&#9776;</button>
     <h1><a href="#">&#127968; Oppussing</a></h1>
+    <div class="header-actions" id="header-actions"></div>
     <button class="settings-btn" id="settings-btn" aria-label="Innstillingar">&#9881;</button>
   </header>
   <div class="layout">
@@ -664,7 +709,24 @@
         var line = lines[i];
         if (line.trim() === '') { i++; continue; }
         var hm = line.match(/^(#{1,6})\s+(.+)$/);
-        if (hm) { html += '<h' + hm[1].length + '>' + parseInline(hm[2]) + '</h' + hm[1].length + '>'; i++; continue; }
+        if (hm) {
+          html += '<h' + hm[1].length + '>' + parseInline(hm[2]) + '</h' + hm[1].length + '>';
+          // Check if this is a "Planer" heading with no table following
+          var headingText = hm[2].trim().toLowerCase();
+          if (headingText === 'planer' || headingText === 'ideer' || headingText === 'idéer') {
+            // Look ahead for table
+            var j = i + 1;
+            while (j < lines.length && lines[j].trim() === '') j++;
+            if (j >= lines.length || !lines[j].match(/^\|/)) {
+              // No table follows — add placeholder
+              if (headingText === 'planer') {
+                html += '<div class="empty-table-placeholder">Klikk for \u00e5 leggje til fyrste plan</div>';
+              }
+            }
+          }
+          i++;
+          continue;
+        }
         if (/^(\*{3,}|-{3,}|_{3,})$/.test(line.trim())) { html += '<hr>'; i++; continue; }
         // Table
         if (line.match(/^\|/)) {
@@ -738,37 +800,67 @@
       return '';
     }
 
+    function getRoomStats(md) {
+      var lines = md.split('\n');
+      var planCount = 0;
+      var totalCost = 0;
+      var inTable = false;
+      var headerSkipped = false;
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (line.match(/^\|/)) {
+          if (!inTable) { inTable = true; headerSkipped = false; continue; }
+          if (!headerSkipped) { headerSkipped = true; continue; } // skip separator
+          // Data row
+          var cells = line.split('|').filter(function(c) { return c.trim() !== ''; });
+          if (cells.length > 0 && cells[0].trim()) {
+            planCount++;
+            cells.forEach(function(c) {
+              var m = c.trim().match(/^([\d\s]+)\s*kr$/);
+              if (m) totalCost += parseInt(m[1].replace(/\s/g, ''), 10);
+            });
+          }
+        } else {
+          inTable = false;
+          headerSkipped = false;
+        }
+      }
+      return { count: planCount, cost: totalCost };
+    }
+
     function renderLanding() {
       var rooms = sortedRooms();
       var html = '<h1 class="landing-title">Oppussing</h1>';
       html += '<p class="landing-subtitle">Oversikt over rom og omr&aring;de</p>';
       html += '<div class="card-grid">';
       rooms.forEach(function(r) {
-        var excerpt = getExcerpt(r.markdown);
+        var stats = getRoomStats(r.markdown);
         html += '<a class="card" href="#' + r.slug + '"><h3>' + r.name + '</h3>';
         html += '<div class="card-date">Sist oppdatert: ' + formatDate(r.lastModified) + '</div>';
-        if (excerpt) html += '<div class="card-excerpt">' + excerpt + '</div>';
+        if (stats.count > 0) {
+          html += '<div class="card-stats">';
+          html += '<span class="card-stat">' + stats.count + ' plan' + (stats.count !== 1 ? 'ar' : '') + '</span>';
+          if (stats.cost > 0) html += '<span class="card-stat">' + stats.cost.toLocaleString('nb-NO') + ' kr</span>';
+          html += '</div>';
+        }
         html += '</a>';
       });
       html += '</div>';
       document.getElementById('content').innerHTML = html;
       updateSidebarActive('');
+      updateHeaderActions('');
     }
 
     function renderRoom(slug) {
       var room = ROOMS.find(function(r) { return r.slug === slug; });
       if (!room) {
         document.getElementById('content').innerHTML = '<h1>Ikkje funne</h1><p><a href="#">Tilbake til oversikta</a></p>';
+        updateHeaderActions('');
         return;
       }
       var html = renderMarkdown(room.markdown);
       var dateHtml = '<div class="date-label">Sist oppdatert: ' + formatDate(room.lastModified) + '</div>';
       html = html.replace(/(<\/h1>)/, '$1' + dateHtml);
-
-      // Add edit button if authenticated
-      if (hasToken()) {
-        html += '<button class="btn btn-ghost btn-sm" id="edit-btn" style="margin-top:var(--space-lg)">Rediger</button>';
-      }
 
       // Add upload area if authenticated
       if (hasToken()) {
@@ -783,12 +875,27 @@
 
       document.getElementById('content').innerHTML = html;
       updateSidebarActive(slug);
+      updateHeaderActions(slug);
 
-      if (hasToken()) {
-        setupUpload(slug);
-        var editBtn = document.getElementById('edit-btn');
-        if (editBtn) editBtn.addEventListener('click', function() { enterEditMode(slug); });
+      if (hasToken()) setupUpload(slug);
+    }
+
+    function updateHeaderActions(slug) {
+      var el = document.getElementById('header-actions');
+      if (!slug || !hasToken()) {
+        el.innerHTML = '';
+        return;
       }
+      el.innerHTML = '<button class="btn btn-ghost btn-sm" id="edit-btn">Rediger</button>';
+      document.getElementById('edit-btn').addEventListener('click', function() { enterEditMode(slug); });
+    }
+
+    function setHeaderEditMode(slug) {
+      var el = document.getElementById('header-actions');
+      el.innerHTML = '<button class="btn btn-ghost btn-sm" id="cancel-btn">Avbryt</button>' +
+        '<button class="btn btn-sm" id="save-btn">Lagre</button>';
+      document.getElementById('cancel-btn').addEventListener('click', function() { cancelEdit(slug); });
+      document.getElementById('save-btn').addEventListener('click', function() { saveEdit(slug); });
     }
 
     // Floor mapping
@@ -886,77 +993,151 @@
       isEditing = true;
       var content = document.getElementById('content');
       content.classList.add('editing');
+      setHeaderEditMode(slug);
 
-      // Add edit toolbar
-      var toolbar = document.createElement('div');
-      toolbar.className = 'edit-toolbar';
-      toolbar.id = 'edit-toolbar';
-      toolbar.innerHTML = '<span class="edit-status">Redigeringsmodus</span>' +
-        '<button class="btn btn-ghost btn-sm" onclick="cancelEdit(\'' + slug + '\')">Avbryt</button>' +
-        '<button class="btn btn-sm" id="save-btn" onclick="saveEdit(\'' + slug + '\')">Lagre</button>';
-      content.insertBefore(toolbar, content.firstChild);
-
-      // Make headings editable
+      // Make headings/paragraphs/list items editable
       content.querySelectorAll('h1, h2, h3, p, li').forEach(function(el) {
-        // Skip date labels and elements inside toolbar
-        if (el.closest('.edit-toolbar') || el.closest('.upload-area') || el.classList.contains('date-label')) return;
+        if (el.closest('.upload-area') || el.classList.contains('date-label')) return;
         if (el.querySelector('img')) return;
         el.setAttribute('contenteditable', 'true');
       });
 
       // Make table cells editable with special handling for pills
       content.querySelectorAll('table').forEach(function(table) {
-        // Skip sum row
-        table.querySelectorAll('tbody tr:not(.table-sum)').forEach(function(tr) {
-          var cells = tr.querySelectorAll('td');
-          cells.forEach(function(td) {
-            var pill = td.querySelector('.pill');
-            if (pill) {
-              // Replace pill with select dropdown
-              var cls = pill.className.replace('pill ', '');
-              var type = cls.includes('sjolv') || cls.includes('handverkar') ? 'utforing' : 'kompleksitet';
-              var current = pill.textContent.trim();
-              var select = document.createElement('select');
-              select.className = 'pill-select ' + cls;
-              if (type === 'kompleksitet') {
-                select.innerHTML = '<option>Lav</option><option>Middels</option><option>H\u00f8g</option>';
-              } else {
-                select.innerHTML = '<option>Sj\u00f8lv</option><option>Handverkar</option>';
-              }
-              select.value = current;
-              select.addEventListener('change', function() {
-                var map = {'Lav':'pill-lav','Middels':'pill-middels','H\u00f8g':'pill-hog','Sj\u00f8lv':'pill-sjolv','Handverkar':'pill-handverkar'};
-                this.className = 'pill-select ' + (map[this.value] || 'pill-lav');
-              });
-              td.innerHTML = '';
-              td.appendChild(select);
-            } else {
-              td.setAttribute('contenteditable', 'true');
+        makeTableEditable(table);
+      });
+
+      // Handle empty table placeholders — convert to real table on click
+      content.querySelectorAll('.empty-table-placeholder').forEach(function(ph) {
+        ph.addEventListener('click', function() {
+          var table = createEmptyPlanTable();
+          ph.parentNode.insertBefore(table, ph);
+          makeTableEditable(table);
+          // Add "add row" button
+          var addBtn = document.createElement('button');
+          addBtn.className = 'add-row-btn';
+          addBtn.textContent = '+ Legg til rad';
+          addBtn.addEventListener('click', function() { addTableRow(table); });
+          table.parentNode.insertBefore(addBtn, table.nextSibling);
+          ph.remove();
+          // Add first row automatically
+          addTableRow(table);
+        });
+      });
+
+      // Wrap images in edit overlays
+      content.querySelectorAll('img').forEach(function(img) {
+        if (img.closest('.upload-area') || img.closest('.img-edit-wrap')) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'img-edit-wrap';
+        img.parentNode.insertBefore(wrap, img);
+        wrap.appendChild(img);
+
+        var actions = document.createElement('div');
+        actions.className = 'img-edit-actions';
+
+        var replaceBtn = document.createElement('button');
+        replaceBtn.textContent = 'Erstatt';
+        replaceBtn.addEventListener('click', function() {
+          var input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'image/*';
+          input.addEventListener('change', function() {
+            if (input.files.length > 0) {
+              var file = input.files[0];
+              var reader = new FileReader();
+              reader.onload = function() {
+                img.src = reader.result;
+                img.dataset.replaced = 'true';
+                img.dataset.file = file.name;
+              };
+              reader.readAsDataURL(file);
             }
           });
-
-          // Add delete button
-          var delTd = document.createElement('td');
-          delTd.style.width = '30px';
-          delTd.innerHTML = '<button class="row-delete" title="Slett rad">&times;</button>';
-          delTd.querySelector('button').addEventListener('click', function() { tr.remove(); });
-          tr.appendChild(delTd);
+          input.click();
         });
 
-        // Add extra th for delete column
-        var lastTh = document.createElement('th');
-        lastTh.style.width = '30px';
-        table.querySelector('thead tr').appendChild(lastTh);
+        var delBtn = document.createElement('button');
+        delBtn.className = 'img-delete';
+        delBtn.textContent = 'Slett';
+        delBtn.addEventListener('click', function() { wrap.remove(); });
 
-        // Add "add row" button after table
-        var addBtn = document.createElement('button');
-        addBtn.className = 'add-row-btn';
-        addBtn.textContent = '+ Legg til rad';
-        addBtn.setAttribute('data-table-id', table.id || ('tbl-' + Math.random().toString(36).slice(2)));
-        table.id = addBtn.getAttribute('data-table-id');
-        addBtn.addEventListener('click', function() { addTableRow(table); });
-        table.parentNode.insertBefore(addBtn, table.nextSibling);
+        actions.appendChild(replaceBtn);
+        actions.appendChild(delBtn);
+        wrap.appendChild(actions);
       });
+
+      // Add bullet list editing — add item button after ULs
+      content.querySelectorAll('ul').forEach(function(ul) {
+        var addLiBtn = document.createElement('button');
+        addLiBtn.className = 'add-row-btn';
+        addLiBtn.textContent = '+ Legg til punkt';
+        addLiBtn.addEventListener('click', function() {
+          var li = document.createElement('li');
+          li.setAttribute('contenteditable', 'true');
+          li.textContent = '';
+          ul.appendChild(li);
+          li.focus();
+        });
+        ul.parentNode.insertBefore(addLiBtn, ul.nextSibling);
+      });
+    }
+
+    function createEmptyPlanTable() {
+      var table = document.createElement('table');
+      table.innerHTML = '<thead><tr><th>Kva</th><th>Kompleksitet</th><th>Kostnad</th><th>Utf\u00f8ring</th></tr></thead><tbody></tbody>';
+      return table;
+    }
+
+    function makeTableEditable(table) {
+      table.querySelectorAll('tbody tr:not(.table-sum)').forEach(function(tr) {
+        var cells = tr.querySelectorAll('td');
+        cells.forEach(function(td) {
+          var pill = td.querySelector('.pill');
+          if (pill) {
+            var cls = pill.className.replace('pill ', '');
+            var type = cls.includes('sjolv') || cls.includes('handverkar') ? 'utforing' : 'kompleksitet';
+            var current = pill.textContent.trim();
+            var select = document.createElement('select');
+            select.className = 'pill-select ' + cls;
+            if (type === 'kompleksitet') {
+              select.innerHTML = '<option>Lav</option><option>Middels</option><option>H\u00f8g</option>';
+            } else {
+              select.innerHTML = '<option>Sj\u00f8lv</option><option>Handverkar</option>';
+            }
+            select.value = current;
+            select.addEventListener('change', function() {
+              var map = {'Lav':'pill-lav','Middels':'pill-middels','H\u00f8g':'pill-hog','Sj\u00f8lv':'pill-sjolv','Handverkar':'pill-handverkar'};
+              this.className = 'pill-select ' + (map[this.value] || 'pill-lav');
+            });
+            td.innerHTML = '';
+            td.appendChild(select);
+          } else {
+            td.setAttribute('contenteditable', 'true');
+          }
+        });
+
+        // Add delete button
+        var delTd = document.createElement('td');
+        delTd.style.width = '30px';
+        delTd.innerHTML = '<button class="row-delete" title="Slett rad">&times;</button>';
+        delTd.querySelector('button').addEventListener('click', function() { tr.remove(); });
+        tr.appendChild(delTd);
+      });
+
+      // Add extra th for delete column
+      var lastTh = document.createElement('th');
+      lastTh.style.width = '30px';
+      table.querySelector('thead tr').appendChild(lastTh);
+
+      // Add "add row" button after table
+      var addBtn = document.createElement('button');
+      addBtn.className = 'add-row-btn';
+      addBtn.textContent = '+ Legg til rad';
+      addBtn.setAttribute('data-table-id', table.id || ('tbl-' + Math.random().toString(36).slice(2)));
+      table.id = addBtn.getAttribute('data-table-id');
+      addBtn.addEventListener('click', function() { addTableRow(table); });
+      table.parentNode.insertBefore(addBtn, table.nextSibling);
     }
 
     function addTableRow(table) {
@@ -1020,11 +1201,36 @@
       var room = ROOMS.find(function(r) { return r.slug === slug; });
       if (!room) return;
 
-      var btn = document.getElementById('save-btn');
-      btn.disabled = true;
-      btn.textContent = 'Lagrar...';
+      var saveBtn = document.getElementById('save-btn');
+      var cancelBtn = document.getElementById('cancel-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Lagrar...';
+      cancelBtn.disabled = true;
 
       try {
+        // Upload any replaced images first
+        var replacedImgs = document.querySelectorAll('#content img[data-replaced="true"]');
+        for (var ri = 0; ri < replacedImgs.length; ri++) {
+          var rimg = replacedImgs[ri];
+          var dataUrl = rimg.src;
+          var base64Data = dataUrl.split(',')[1];
+          var rext = (rimg.dataset.file || 'jpg').split('.').pop().toLowerCase();
+          var rimgName = Date.now() + '-' + ri + '.' + rext;
+          var rimgPath = 'bilder/' + slug + '/' + rimgName;
+
+          await fetch(API + '/repos/' + REPO + '/contents/' + rimgPath, {
+            method: 'PUT',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+            body: JSON.stringify({
+              message: 'Erstatt bilete i ' + room.name,
+              content: base64Data
+            })
+          });
+
+          rimg.src = rimgPath;
+          rimg.removeAttribute('data-replaced');
+        }
+
         var newMarkdown = domToMarkdown();
 
         // Get latest sha
@@ -1050,8 +1256,9 @@
         renderRoom(slug);
         renderSidebar();
       } catch(err) {
-        btn.disabled = false;
-        btn.textContent = 'Lagre';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Lagre';
+        cancelBtn.disabled = false;
         alert('Feil ved lagring: ' + err.message);
       }
     }
@@ -1062,10 +1269,11 @@
       var children = content.children;
       for (var i = 0; i < children.length; i++) {
         var el = children[i];
-        if (el.classList.contains('edit-toolbar') || el.classList.contains('upload-area') ||
+        if (el.classList.contains('upload-area') ||
             el.classList.contains('progress-bar') || el.classList.contains('upload-status') ||
             el.classList.contains('date-label')) continue;
         if (el.classList.contains('add-row-btn')) continue;
+        if (el.classList.contains('empty-table-placeholder')) continue;
 
         var tag = el.tagName;
         if (tag === 'H1') md += '# ' + el.textContent.trim() + '\n\n';
@@ -1079,13 +1287,17 @@
         else if (tag === 'UL') {
           el.querySelectorAll('li').forEach(function(li) {
             var t = li.textContent.trim();
-            md += '- ' + (t || '') + '\n';
+            if (t) md += '- ' + t + '\n';
           });
           md += '\n';
         }
         else if (tag === 'HR') md += '---\n\n';
         else if (tag === 'IMG') {
           md += '![' + (el.alt || '') + '](' + el.getAttribute('src') + ')\n\n';
+        }
+        else if (tag === 'DIV' && el.classList.contains('img-edit-wrap')) {
+          var img = el.querySelector('img');
+          if (img) md += '![' + (img.alt || '') + '](' + img.getAttribute('src') + ')\n\n';
         }
         else if (tag === 'TABLE') {
           md += tableToMarkdown(el) + '\n';

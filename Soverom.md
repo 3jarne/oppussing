@@ -1,7 +1,11 @@
 # Soverom
 
-## Ideer
-- 
+## Planer
+
+## Idéer
+
+-
 
 ## Bilder/inspirasjon
-- 
+
+-
