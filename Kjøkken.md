@@ -3,7 +3,7 @@
 ## Ideer
 
 | Kva | Kompleksitet | Kostnad | Utføring |
-|-----|-------------|--------|----------|
+|---|---|---|---|
 | Male kjøkkenfrontane | Lav | 2 000 kr | Sjølv |
 | Fjerne det store skapet over langsida | Lav | 0 kr | Sjølv |
 | Lage en enkelthylle på toppen av flisene | Lav | 1 500 kr | Sjølv |
