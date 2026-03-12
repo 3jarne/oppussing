@@ -1,7 +1,11 @@
 # Hage og uteareal
 
-## Ideer
-- 
+## Planer
+
+## Idéer
+
+-
 
 ## Bilder/inspirasjon
-- 
+
+-

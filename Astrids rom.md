@@ -1,7 +1,11 @@
 # Astrids rom
 
-## Ideer
-- 
+## Planer
+
+## Idéer
+
+-
 
 ## Bilder/inspirasjon
-- 
+
+-

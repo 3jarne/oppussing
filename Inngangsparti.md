@@ -1,7 +1,11 @@
 # Inngangsparti
 
-## Ideer
-- 
+## Planer
+
+## Idéer
+
+-
 
 ## Bilder/inspirasjon
-- 
+
+-
