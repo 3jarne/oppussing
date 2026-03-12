@@ -63,18 +63,10 @@
       z-index: 100;
     }
 
-    .header h1 {
-      font-size: var(--font-size-lg);
-      font-weight: 600;
-    }
+    .header h1 { font-size: var(--font-size-lg); font-weight: 600; flex: 1; }
+    .header h1 a { color: inherit; text-decoration: none; }
 
-    .header h1 a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .hamburger {
-      display: none;
+    .hamburger, .settings-btn {
       background: none;
       border: 1px solid var(--color-border);
       border-radius: var(--radius);
@@ -85,11 +77,11 @@
       line-height: 1;
     }
 
+    .hamburger { display: none; }
+    .settings-btn { font-size: var(--font-size-base); }
+
     /* === Layout === */
-    .layout {
-      display: flex;
-      min-height: calc(100vh - 57px);
-    }
+    .layout { display: flex; min-height: calc(100vh - 57px); }
 
     /* === Sidebar === */
     .sidebar {
@@ -101,9 +93,7 @@
       overflow-y: auto;
     }
 
-    .sidebar ul {
-      list-style: none;
-    }
+    .sidebar ul { list-style: none; }
 
     .sidebar a {
       display: block;
@@ -116,9 +106,7 @@
       transition: background 0.15s, border-color 0.15s;
     }
 
-    .sidebar a:hover {
-      background: var(--color-border);
-    }
+    .sidebar a:hover { background: var(--color-border); }
 
     .sidebar a.active {
       background: var(--color-card-bg);
@@ -137,7 +125,6 @@
     main h1 { font-size: var(--font-size-xl); font-weight: 600; margin-bottom: var(--space-sm); }
     main h2 { font-size: var(--font-size-lg); font-weight: 600; margin-top: var(--space-2xl); margin-bottom: var(--space-md); color: var(--color-accent); }
     main h3 { font-size: var(--font-size-base); font-weight: 600; margin-top: var(--space-xl); margin-bottom: var(--space-sm); }
-
     main p { margin-bottom: var(--space-md); }
 
     main ul {
@@ -166,16 +153,8 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    main a {
-      color: var(--color-accent);
-      text-decoration: underline;
-      text-decoration-color: var(--color-border);
-      text-underline-offset: 2px;
-    }
-
-    main a:hover {
-      text-decoration-color: var(--color-accent);
-    }
+    main a { color: var(--color-accent); text-decoration: underline; text-decoration-color: var(--color-border); text-underline-offset: 2px; }
+    main a:hover { text-decoration-color: var(--color-accent); }
 
     main code {
       background: var(--color-surface);
@@ -184,11 +163,7 @@
       font-size: var(--font-size-sm);
     }
 
-    main hr {
-      border: none;
-      border-top: 1px solid var(--color-border);
-      margin: var(--space-xl) 0;
-    }
+    main hr { border: none; border-top: 1px solid var(--color-border); margin: var(--space-xl) 0; }
 
     .date-label {
       font-size: var(--font-size-sm);
@@ -215,49 +190,121 @@
       display: block;
     }
 
-    .card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-      transform: translateY(-2px);
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .card h3 { font-size: var(--font-size-base); font-weight: 600; margin: 0 0 var(--space-sm) 0; }
+    .card .card-date { font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-sm); }
+    .card .card-excerpt { font-size: var(--font-size-sm); color: var(--color-text-muted); line-height: 1.5; }
+
+    .landing-title { font-size: var(--font-size-xl); font-weight: 600; margin-bottom: var(--space-xs); }
+    .landing-subtitle { color: var(--color-text-muted); margin-bottom: var(--space-lg); }
+
+    /* === Upload area === */
+    .upload-area {
+      margin-top: var(--space-xl);
+      padding: var(--space-xl);
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
     }
 
-    .card h3 {
-      font-size: var(--font-size-base);
-      font-weight: 600;
-      margin: 0 0 var(--space-sm) 0;
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--color-accent);
+      background: var(--color-surface);
     }
 
-    .card .card-date {
+    .upload-area input { display: none; }
+    .upload-area p { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+    .upload-area .upload-icon { font-size: 2rem; margin-bottom: var(--space-sm); }
+
+    .upload-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+    }
+
+    .upload-preview img {
+      width: 120px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: var(--radius);
+    }
+
+    .upload-status {
+      margin-top: var(--space-md);
       font-size: var(--font-size-sm);
       color: var(--color-text-muted);
-      margin-bottom: var(--space-sm);
     }
 
-    .card .card-excerpt {
+    .upload-status.error { color: #c44; }
+    .upload-status.success { color: var(--color-accent); }
+
+    .btn {
+      display: inline-block;
+      padding: var(--space-sm) var(--space-lg);
+      background: var(--color-accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-family);
       font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
-      line-height: 1.5;
+      cursor: pointer;
+      transition: background 0.15s;
     }
 
-    .landing-title {
-      font-size: var(--font-size-xl);
-      font-weight: 600;
-      margin-bottom: var(--space-xs);
-    }
+    .btn:hover { background: var(--color-accent-hover); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .landing-subtitle {
-      color: var(--color-text-muted);
-      margin-bottom: var(--space-lg);
-    }
-
-    /* === Backdrop (mobile) === */
-    .backdrop {
+    /* === Modal === */
+    .modal-backdrop {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.3);
-      z-index: 49;
+      background: rgba(0,0,0,0.4);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
     }
 
+    .modal-backdrop.visible { display: flex; }
+
+    .modal {
+      background: var(--color-card-bg);
+      border-radius: var(--radius);
+      padding: var(--space-xl);
+      max-width: 440px;
+      width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+
+    .modal h2 { margin-top: 0; margin-bottom: var(--space-md); font-size: var(--font-size-lg); color: var(--color-text); }
+    .modal label { display: block; font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-xs); }
+
+    .modal input[type="text"], .modal input[type="password"] {
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      font-family: var(--font-family);
+      font-size: var(--font-size-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .modal .btn-row { display: flex; gap: var(--space-sm); justify-content: flex-end; }
+    .btn-ghost { background: none; color: var(--color-text-muted); border: 1px solid var(--color-border); }
+    .btn-ghost:hover { background: var(--color-surface); }
+
+    .token-status { font-size: var(--font-size-sm); margin-bottom: var(--space-md); }
+    .token-status.connected { color: var(--color-accent); }
+    .token-status.disconnected { color: #c44; }
+
+    /* === Loading === */
+    .loading { text-align: center; padding: var(--space-2xl); color: var(--color-text-muted); }
+
+    /* === Backdrop (mobile) === */
+    .backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 49; }
     .backdrop.visible { display: block; }
 
     /* === Responsive === */
@@ -265,27 +312,15 @@
       .hamburger { display: block; }
 
       .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        z-index: 50;
+        position: fixed; top: 0; left: 0; bottom: 0; z-index: 50;
         transform: translateX(-100%);
         transition: transform 0.25s ease;
         box-shadow: 2px 0 12px rgba(0,0,0,0.1);
       }
 
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      main {
-        padding: var(--space-lg);
-      }
-
-      .card-grid {
-        grid-template-columns: 1fr;
-      }
+      .sidebar.open { transform: translateX(0); }
+      main { padding: var(--space-lg); }
+      .card-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -293,62 +328,175 @@
   <header class="header">
     <button class="hamburger" id="hamburger" aria-label="Meny">&#9776;</button>
     <h1><a href="#">&#127968; Oppussing</a></h1>
+    <button class="settings-btn" id="settings-btn" aria-label="Innstillingar">&#9881;</button>
   </header>
   <div class="layout">
     <nav class="sidebar" id="sidebar">
       <ul id="room-list"></ul>
     </nav>
-    <main id="content"></main>
+    <main id="content"><div class="loading">Lastar...</div></main>
   </div>
   <div class="backdrop" id="backdrop"></div>
 
-  <script src="rooms.js"></script>
-  <script>
-    // --- Utilities ---
+  <!-- Settings modal -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal">
+      <h2>Innstillingar</h2>
+      <div class="token-status" id="token-status"></div>
+      <label for="token-input">GitHub Personal Access Token</label>
+      <input type="password" id="token-input" placeholder="ghp_...">
+      <p style="font-size:0.75rem;color:var(--color-text-muted);margin-bottom:var(--space-md)">
+        Lag ein token p&aring; <a href="https://github.com/settings/tokens/new?scopes=repo&description=Oppussing" target="_blank">github.com/settings/tokens</a> med <strong>repo</strong>-tilgang.
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="modal-close">Lukk</button>
+        <button class="btn" id="token-save">Lagre</button>
+      </div>
+    </div>
+  </div>
 
+  <script>
+    // === Config ===
+    var REPO = '3jarne/oppussing';
+    var API = 'https://api.github.com';
+    var ROOMS = [];
+    var CACHE_KEY = 'oppussing_rooms_cache';
+    var CACHE_TTL = 60000; // 1 minute
+
+    // === Token management ===
+    function getToken() { return localStorage.getItem('gh_token') || ''; }
+    function setToken(t) { localStorage.setItem('gh_token', t); }
+    function hasToken() { return !!getToken(); }
+
+    function authHeaders() {
+      var h = { 'Accept': 'application/vnd.github+json' };
+      if (hasToken()) h['Authorization'] = 'Bearer ' + getToken();
+      return h;
+    }
+
+    // === GitHub API ===
+    async function apiFetch(path) {
+      var resp = await fetch(API + path, { headers: authHeaders() });
+      if (!resp.ok) throw new Error('GitHub API: ' + resp.status);
+      return resp.json();
+    }
+
+    async function loadRooms() {
+      // Check cache
+      try {
+        var cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+        if (cached && Date.now() - cached.ts < CACHE_TTL) {
+          ROOMS = cached.data;
+          return;
+        }
+      } catch(e) {}
+
+      // Fetch file list
+      var files = await apiFetch('/repos/' + REPO + '/contents');
+      var mdFiles = files.filter(function(f) {
+        return f.name.endsWith('.md') && !f.name.startsWith('\u{1F3E0}');
+      });
+
+      // Fetch each file's content and last commit date
+      var rooms = await Promise.all(mdFiles.map(async function(f) {
+        var name = f.name.replace(/\.md$/, '');
+        var slug = slugify(name);
+
+        // Get content (base64 encoded)
+        var fileData = await apiFetch('/repos/' + REPO + '/contents/' + encodeURIComponent(f.name));
+        var markdown = decodeBase64UTF8(fileData.content);
+
+        // Get last commit for this file
+        var commits = await apiFetch('/repos/' + REPO + '/commits?path=' + encodeURIComponent(f.name) + '&per_page=1');
+        var lastModified = commits.length > 0 ? commits[0].commit.author.date : '';
+
+        return { name: name, slug: slug, markdown: markdown, lastModified: lastModified, path: f.name, sha: fileData.sha };
+      }));
+
+      ROOMS = rooms;
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: rooms }));
+    }
+
+    // Proper base64 decode with UTF-8 support
+    function decodeBase64UTF8(b64) {
+      var binStr = atob(b64.replace(/\n/g, ''));
+      var bytes = new Uint8Array(binStr.length);
+      for (var i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
+      return new TextDecoder().decode(bytes);
+    }
+
+    // === Image upload via GitHub API ===
+    async function uploadImage(file, roomSlug) {
+      if (!hasToken()) throw new Error('Treng GitHub-token for opplasting');
+
+      var room = ROOMS.find(function(r) { return r.slug === roomSlug; });
+      if (!room) throw new Error('Fann ikkje rommet');
+
+      // Read file as base64
+      var base64 = await new Promise(function(resolve) {
+        var reader = new FileReader();
+        reader.onload = function() { resolve(reader.result.split(',')[1]); };
+        reader.readAsDataURL(file);
+      });
+
+      // Upload image to bilder/{slug}/
+      var ext = file.name.split('.').pop().toLowerCase();
+      var imgName = Date.now() + '.' + ext;
+      var imgPath = 'bilder/' + roomSlug + '/' + imgName;
+
+      await fetch(API + '/repos/' + REPO + '/contents/' + imgPath, {
+        method: 'PUT',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+        body: JSON.stringify({
+          message: 'Legg til bilete i ' + room.name,
+          content: base64
+        })
+      });
+
+      // Update markdown file - append image
+      var newMarkdown = room.markdown.trimEnd() + '\n\n![' + file.name + '](' + imgPath + ')\n';
+      var encodedContent = btoa(unescape(encodeURIComponent(newMarkdown)));
+
+      await fetch(API + '/repos/' + REPO + '/contents/' + encodeURIComponent(room.path), {
+        method: 'PUT',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+        body: JSON.stringify({
+          message: 'Oppdater ' + room.name + ' med nytt bilete',
+          content: encodedContent,
+          sha: room.sha
+        })
+      });
+
+      // Clear cache so next load picks up changes
+      localStorage.removeItem(CACHE_KEY);
+    }
+
+    // === Utilities ===
     function slugify(name) {
-      return name
-        .toLowerCase()
-        .replace(/ /g, '-')
-        .replace(/ø/g, 'o')
-        .replace(/æ/g, 'ae')
-        .replace(/å/g, 'a');
+      return name.toLowerCase().replace(/ /g, '-').replace(/ø/g, 'o').replace(/æ/g, 'ae').replace(/å/g, 'a');
     }
 
     function formatDate(iso) {
       if (!iso) return '';
       try {
-        return new Intl.DateTimeFormat('nb-NO', {
-          day: 'numeric', month: 'long', year: 'numeric'
-        }).format(new Date(iso));
+        return new Intl.DateTimeFormat('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
       } catch(e) { return iso; }
     }
 
     function sortedRooms() {
-      return [...ROOMS].sort((a, b) =>
-        (b.lastModified || '').localeCompare(a.lastModified || '')
-      );
+      return [].concat(ROOMS).sort(function(a, b) { return (b.lastModified || '').localeCompare(a.lastModified || ''); });
     }
 
-    // --- Markdown Parser ---
-
+    // === Markdown Parser ===
     function parseInline(text) {
       return text
-        // images
         .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy">')
-        // links
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-        // wiki-links
-        .replace(/\[\[([^\]]+)\]\]/g, function(_, name) {
-          return '<a href="#' + slugify(name) + '">' + name + '</a>';
-        })
-        // bold
+        .replace(/\[\[([^\]]+)\]\]/g, function(_, name) { return '<a href="#' + slugify(name) + '">' + name + '</a>'; })
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/__(.+?)__/g, '<strong>$1</strong>')
-        // italic
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
         .replace(/_(.+?)_/g, '<em>$1</em>')
-        // inline code
         .replace(/`([^`]+)`/g, '<code>$1</code>');
     }
 
@@ -356,87 +504,40 @@
       var lines = text.split('\n');
       var html = '';
       var i = 0;
-
       while (i < lines.length) {
         var line = lines[i];
-
-        // Empty line
         if (line.trim() === '') { i++; continue; }
-
-        // Headings
-        var headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
-        if (headingMatch) {
-          var level = headingMatch[1].length;
-          html += '<h' + level + '>' + parseInline(headingMatch[2]) + '</h' + level + '>';
-          i++; continue;
-        }
-
-        // Horizontal rules
-        if (/^(\*{3,}|-{3,}|_{3,})$/.test(line.trim())) {
-          html += '<hr>';
-          i++; continue;
-        }
-
-        // Blockquotes
+        var hm = line.match(/^(#{1,6})\s+(.+)$/);
+        if (hm) { html += '<h' + hm[1].length + '>' + parseInline(hm[2]) + '</h' + hm[1].length + '>'; i++; continue; }
+        if (/^(\*{3,}|-{3,}|_{3,})$/.test(line.trim())) { html += '<hr>'; i++; continue; }
         if (line.match(/^>\s?/)) {
-          var bqLines = [];
-          while (i < lines.length && lines[i].match(/^>\s?/)) {
-            bqLines.push(lines[i].replace(/^>\s?/, ''));
-            i++;
-          }
-          html += '<blockquote><p>' + parseInline(bqLines.join(' ')) + '</p></blockquote>';
-          continue;
+          var bq = [];
+          while (i < lines.length && lines[i].match(/^>\s?/)) { bq.push(lines[i].replace(/^>\s?/, '')); i++; }
+          html += '<blockquote><p>' + parseInline(bq.join(' ')) + '</p></blockquote>'; continue;
         }
-
-        // Unordered lists
         if (line.match(/^[-*]\s/)) {
           var items = [];
-          while (i < lines.length && lines[i].match(/^[-*]\s/)) {
-            var itemText = lines[i].replace(/^[-*]\s/, '').trim();
-            if (itemText) items.push(itemText);
-            i++;
-          }
-          if (items.length > 0) {
-            html += '<ul>';
-            for (var j = 0; j < items.length; j++) {
-              html += '<li>' + parseInline(items[j]) + '</li>';
-            }
-            html += '</ul>';
-          }
+          while (i < lines.length && lines[i].match(/^[-*]\s/)) { var t = lines[i].replace(/^[-*]\s/, '').trim(); if (t) items.push(t); i++; }
+          if (items.length > 0) { html += '<ul>'; items.forEach(function(it) { html += '<li>' + parseInline(it) + '</li>'; }); html += '</ul>'; }
           continue;
         }
-
-        // Standalone image
-        var imgMatch = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-        if (imgMatch) {
-          html += '<img src="' + imgMatch[2] + '" alt="' + imgMatch[1] + '" loading="lazy">';
-          i++; continue;
-        }
-
-        // Paragraph
+        var im = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+        if (im) { html += '<img src="' + im[2] + '" alt="' + im[1] + '" loading="lazy">'; i++; continue; }
         var pLines = [];
-        while (i < lines.length && lines[i].trim() !== '' && !lines[i].match(/^#{1,6}\s/) && !lines[i].match(/^[-*]\s/) && !lines[i].match(/^>\s?/) && !lines[i].match(/^(\*{3,}|-{3,}|_{3,})$/)) {
-          pLines.push(lines[i]);
-          i++;
-        }
+        while (i < lines.length && lines[i].trim() !== '' && !lines[i].match(/^#{1,6}\s/) && !lines[i].match(/^[-*]\s/) && !lines[i].match(/^>\s?/) && !lines[i].match(/^(\*{3,}|-{3,}|_{3,})$/)) { pLines.push(lines[i]); i++; }
         html += '<p>' + parseInline(pLines.join(' ')) + '</p>';
       }
-
       return html;
     }
 
-    // --- Rendering ---
-
-    function getExcerpt(markdown) {
-      var lines = markdown.split('\n');
+    // === Rendering ===
+    function getExcerpt(md) {
+      var lines = md.split('\n');
       for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].trim();
-        if (!line) continue;
-        if (line.match(/^#{1,6}\s/)) continue;
-        if (line === '-' || line === '- ') continue;
-        // strip markdown syntax for excerpt
-        var clean = line.replace(/^>\s?/, '').replace(/^[-*]\s/, '').trim();
-        if (clean) return clean.length > 120 ? clean.substring(0, 120) + '...' : clean;
+        var l = lines[i].trim();
+        if (!l || l.match(/^#{1,6}\s/) || l === '-' || l === '- ') continue;
+        var c = l.replace(/^>\s?/, '').replace(/^[-*]\s/, '').replace(/!\[.*?\]\(.*?\)/g, '').trim();
+        if (c) return c.length > 120 ? c.substring(0, 120) + '...' : c;
       }
       return '';
     }
@@ -444,59 +545,104 @@
     function renderLanding() {
       var rooms = sortedRooms();
       var html = '<h1 class="landing-title">Oppussing</h1>';
-      html += '<p class="landing-subtitle">Oversikt over rom og område</p>';
+      html += '<p class="landing-subtitle">Oversikt over rom og omr&aring;de</p>';
       html += '<div class="card-grid">';
-      for (var i = 0; i < rooms.length; i++) {
-        var r = rooms[i];
+      rooms.forEach(function(r) {
         var excerpt = getExcerpt(r.markdown);
-        html += '<a class="card" href="#' + r.slug + '">';
-        html += '<h3>' + r.name + '</h3>';
+        html += '<a class="card" href="#' + r.slug + '"><h3>' + r.name + '</h3>';
         html += '<div class="card-date">Sist oppdatert: ' + formatDate(r.lastModified) + '</div>';
         if (excerpt) html += '<div class="card-excerpt">' + excerpt + '</div>';
         html += '</a>';
-      }
+      });
       html += '</div>';
       document.getElementById('content').innerHTML = html;
       updateSidebarActive('');
     }
 
     function renderRoom(slug) {
-      var room = null;
-      for (var i = 0; i < ROOMS.length; i++) {
-        if (ROOMS[i].slug === slug) { room = ROOMS[i]; break; }
-      }
+      var room = ROOMS.find(function(r) { return r.slug === slug; });
       if (!room) {
-        document.getElementById('content').innerHTML = '<h1>Ikkje funne</h1><p>Rommet finst ikkje. <a href="#">Tilbake til oversikta</a></p>';
+        document.getElementById('content').innerHTML = '<h1>Ikkje funne</h1><p><a href="#">Tilbake til oversikta</a></p>';
         return;
       }
       var html = renderMarkdown(room.markdown);
-      // Insert date label after first heading
       var dateHtml = '<div class="date-label">Sist oppdatert: ' + formatDate(room.lastModified) + '</div>';
       html = html.replace(/(<\/h1>)/, '$1' + dateHtml);
+
+      // Add upload area if authenticated
+      if (hasToken()) {
+        html += '<div class="upload-area" id="upload-area" data-slug="' + slug + '">';
+        html += '<input type="file" id="upload-input" accept="image/*" multiple>';
+        html += '<div class="upload-icon">&#128247;</div>';
+        html += '<p>Dra bilete hit eller klikk for &aring; laste opp</p>';
+        html += '</div>';
+        html += '<div class="upload-status" id="upload-status"></div>';
+      }
+
       document.getElementById('content').innerHTML = html;
       updateSidebarActive(slug);
+
+      if (hasToken()) setupUpload(slug);
     }
 
     function renderSidebar() {
       var rooms = sortedRooms();
       var ul = document.getElementById('room-list');
-      var html = '';
-      for (var i = 0; i < rooms.length; i++) {
-        html += '<li><a href="#' + rooms[i].slug + '" data-slug="' + rooms[i].slug + '">' + rooms[i].name + '</a></li>';
-      }
-      ul.innerHTML = html;
+      ul.innerHTML = rooms.map(function(r) {
+        return '<li><a href="#' + r.slug + '" data-slug="' + r.slug + '">' + r.name + '</a></li>';
+      }).join('');
     }
 
     function updateSidebarActive(slug) {
-      var links = document.querySelectorAll('#room-list a');
-      for (var i = 0; i < links.length; i++) {
-        links[i].classList.toggle('active', links[i].getAttribute('data-slug') === slug);
+      document.querySelectorAll('#room-list a').forEach(function(a) {
+        a.classList.toggle('active', a.getAttribute('data-slug') === slug);
+      });
+    }
+
+    // === Upload handling ===
+    function setupUpload(slug) {
+      var area = document.getElementById('upload-area');
+      var input = document.getElementById('upload-input');
+      if (!area || !input) return;
+
+      area.addEventListener('click', function() { input.click(); });
+
+      area.addEventListener('dragover', function(e) { e.preventDefault(); area.classList.add('dragover'); });
+      area.addEventListener('dragleave', function() { area.classList.remove('dragover'); });
+      area.addEventListener('drop', function(e) {
+        e.preventDefault();
+        area.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files, slug);
+      });
+
+      input.addEventListener('change', function() { handleFiles(input.files, slug); });
+    }
+
+    async function handleFiles(files, slug) {
+      var status = document.getElementById('upload-status');
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        if (!file.type.startsWith('image/')) continue;
+        status.className = 'upload-status';
+        status.textContent = 'Lastar opp ' + file.name + '...';
+        try {
+          await uploadImage(file, slug);
+          status.className = 'upload-status success';
+          status.textContent = file.name + ' lasta opp!';
+          // Reload room data
+          localStorage.removeItem(CACHE_KEY);
+          await loadRooms();
+          renderRoom(slug);
+          renderSidebar();
+        } catch(err) {
+          status.className = 'upload-status error';
+          status.textContent = 'Feil: ' + err.message;
+        }
       }
     }
 
-    // --- Routing ---
-
-    function route() {
+    // === Routing ===
+    async function route() {
       var slug = location.hash.slice(1);
       if (!slug) renderLanding();
       else renderRoom(slug);
@@ -504,8 +650,7 @@
       window.scrollTo(0, 0);
     }
 
-    // --- Sidebar toggle (mobile) ---
-
+    // === Sidebar toggle ===
     function openSidebar() {
       document.getElementById('sidebar').classList.add('open');
       document.getElementById('backdrop').classList.add('visible');
@@ -517,19 +662,64 @@
     }
 
     document.getElementById('hamburger').addEventListener('click', function() {
-      var sidebar = document.getElementById('sidebar');
-      if (sidebar.classList.contains('open')) closeSidebar();
-      else openSidebar();
+      var sb = document.getElementById('sidebar');
+      sb.classList.contains('open') ? closeSidebar() : openSidebar();
     });
 
     document.getElementById('backdrop').addEventListener('click', closeSidebar);
 
-    // --- Init ---
-
-    document.addEventListener('DOMContentLoaded', function() {
-      renderSidebar();
-      route();
+    // === Settings modal ===
+    document.getElementById('settings-btn').addEventListener('click', function() {
+      document.getElementById('modal').classList.add('visible');
+      document.getElementById('token-input').value = getToken();
+      updateTokenStatus();
     });
+
+    document.getElementById('modal-close').addEventListener('click', function() {
+      document.getElementById('modal').classList.remove('visible');
+    });
+
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('visible');
+    });
+
+    document.getElementById('token-save').addEventListener('click', async function() {
+      var token = document.getElementById('token-input').value.trim();
+      setToken(token);
+      updateTokenStatus();
+      if (token) {
+        localStorage.removeItem(CACHE_KEY);
+        await loadRooms();
+        renderSidebar();
+        route();
+      }
+      document.getElementById('modal').classList.remove('visible');
+    });
+
+    function updateTokenStatus() {
+      var el = document.getElementById('token-status');
+      if (hasToken()) {
+        el.className = 'token-status connected';
+        el.textContent = '&#10003; Kopla til GitHub';
+        el.innerHTML = '&#10003; Kopla til GitHub';
+      } else {
+        el.className = 'token-status disconnected';
+        el.textContent = 'Ikkje kopla til';
+      }
+    }
+
+    // === Init ===
+    (async function() {
+      try {
+        await loadRooms();
+        renderSidebar();
+        route();
+      } catch(err) {
+        document.getElementById('content').innerHTML =
+          '<div class="loading"><p>Kunne ikkje laste data.</p><p style="font-size:var(--font-size-sm);color:var(--color-text-muted)">' +
+          err.message + '</p><p style="margin-top:var(--space-md)"><button class="btn" onclick="document.getElementById(\'modal\').classList.add(\'visible\')">Legg til GitHub-token</button></p></div>';
+      }
+    })();
 
     window.addEventListener('hashchange', route);
   </script>
