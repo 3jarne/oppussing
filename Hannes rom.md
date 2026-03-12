@@ -6,6 +6,6 @@
 
 -
 
-## Bilder/inspirasjon
+## Referansebilder
 
 -

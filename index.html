@@ -137,10 +137,35 @@
     }
 
     /* === Rendered Markdown === */
-    main h1 { font-size: var(--font-size-xl); font-weight: 600; margin-bottom: var(--space-sm); }
+    main h1 { font-size: var(--font-size-xl); font-weight: 600; margin-bottom: var(--space-xs); }
     main h2 { font-size: var(--font-size-lg); font-weight: 600; margin-top: var(--space-2xl); margin-bottom: var(--space-md); color: var(--color-accent); }
     main h3 { font-size: var(--font-size-base); font-weight: 600; margin-top: var(--space-xl); margin-bottom: var(--space-sm); }
     main p { margin-bottom: var(--space-md); }
+
+    /* === Room header === */
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-xl);
+    }
+
+    .room-header-left { flex: 1; }
+    .room-header-left h1 { margin-bottom: var(--space-xs); }
+    .room-header .subtitle {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      font-style: italic;
+      margin: 0;
+    }
+
+    .room-header .date-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      margin-left: var(--space-lg);
+      margin-top: var(--space-xs);
+    }
 
     main ul {
       list-style: disc;
@@ -164,9 +189,44 @@
       max-width: 100%;
       height: auto;
       border-radius: var(--radius);
-      margin: var(--space-md) 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
+
+    /* === Image grid (Pinterest-style) === */
+    .image-grid {
+      columns: 2;
+      column-gap: var(--space-md);
+      margin: var(--space-md) 0 var(--space-xl);
+    }
+
+    @media (max-width: 768px) {
+      .image-grid { columns: 1; }
+    }
+
+    .image-card {
+      break-inside: avoid;
+      margin-bottom: var(--space-md);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+    }
+
+    .image-card img {
+      width: 100%;
+      display: block;
+      border-radius: 0;
+      box-shadow: none;
+      margin: 0;
+    }
+
+    .image-card figcaption {
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
+
+    .image-card figcaption:empty { display: none; }
 
     main a { color: var(--color-accent); text-decoration: underline; text-decoration-color: var(--color-border); text-underline-offset: 2px; }
     main a:hover { text-decoration-color: var(--color-accent); }
@@ -222,12 +282,6 @@
     .pill-hog { background: #1a1a1a; color: #fff; }
     .pill-sjolv { background: #e8e8e8; color: #444; }
     .pill-handverkar { background: #1a1a1a; color: #fff; }
-
-    .date-label {
-      font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
-      margin-bottom: var(--space-xl);
-    }
 
     /* === Landing Page Cards === */
     .card-grid {
@@ -517,27 +571,27 @@
 <body>
   <header class="header">
     <button class="hamburger" id="hamburger" aria-label="Meny">&#9776;</button>
-    <h1><a href="#">&#127968; Oppussing</a></h1>
+    <h1><a href="#">Oppussing</a></h1>
     <div class="header-actions" id="header-actions"></div>
-    <button class="settings-btn" id="settings-btn" aria-label="Innstillingar">&#9881;</button>
+    <button class="settings-btn" id="settings-btn" aria-label="Innstillinger">&#9881;</button>
   </header>
   <div class="layout">
     <nav class="sidebar" id="sidebar">
       <ul id="room-list"></ul>
     </nav>
-    <main id="content"><div class="loading">Lastar...</div></main>
+    <main id="content"><div class="loading">Laster...</div></main>
   </div>
   <div class="backdrop" id="backdrop"></div>
 
   <!-- Settings modal -->
   <div class="modal-backdrop" id="modal">
     <div class="modal">
-      <h2>Innstillingar</h2>
+      <h2>Innstillinger</h2>
       <div class="token-status" id="token-status"></div>
       <label for="token-input">GitHub Personal Access Token</label>
       <input type="password" id="token-input" placeholder="ghp_...">
       <p style="font-size:0.75rem;color:var(--color-text-muted);margin-bottom:var(--space-md)">
-        Lag ein token p&aring; <a href="https://github.com/settings/tokens/new?scopes=repo&description=Oppussing" target="_blank">github.com/settings/tokens</a> med <strong>repo</strong>-tilgang.
+        Lag en token p&aring; <a href="https://github.com/settings/tokens/new?scopes=repo&description=Oppussing" target="_blank">github.com/settings/tokens</a> med <strong>repo</strong>-tilgang.
       </p>
       <div class="btn-row">
         <button class="btn btn-ghost" id="modal-close">Lukk</button>
@@ -618,10 +672,10 @@
 
     // === Image upload via GitHub API ===
     async function uploadImage(file, roomSlug) {
-      if (!hasToken()) throw new Error('Treng GitHub-token for opplasting');
+      if (!hasToken()) throw new Error('Trenger GitHub-token for opplasting');
 
       var room = ROOMS.find(function(r) { return r.slug === roomSlug; });
-      if (!room) throw new Error('Fann ikkje rommet');
+      if (!room) throw new Error('Fant ikke rommet');
 
       // Read file as base64
       var base64 = await new Promise(function(resolve) {
@@ -639,7 +693,7 @@
         method: 'PUT',
         headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
         body: JSON.stringify({
-          message: 'Legg til bilete i ' + room.name,
+          message: 'Legg til bilde i' + room.name,
           content: base64
         })
       });
@@ -652,7 +706,7 @@
         method: 'PUT',
         headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
         body: JSON.stringify({
-          message: 'Oppdater ' + room.name + ' med nytt bilete',
+          message: 'Oppdater ' + room.name + ' med nytt bilde',
           content: encodedContent,
           sha: room.sha
         })
@@ -692,12 +746,12 @@
     }
 
     function pillify(text) {
-      var t = text.toLowerCase().replace(/ø/g, 'o').replace(/æ/g, 'ae').trim();
+      var t = text.toLowerCase().replace(/ø/g, 'o').replace(/æ/g, 'ae').replace(/å/g, 'a').trim();
       if (t === 'lav') return '<span class="pill pill-lav">Lav</span>';
       if (t === 'middels') return '<span class="pill pill-middels">Middels</span>';
-      if (t === 'hog' || t === 'høg' || t === 'høy') return '<span class="pill pill-hog">H\u00f8g</span>';
-      if (t === 'sjolv' || t === 'selv') return '<span class="pill pill-sjolv">Sj\u00f8lv</span>';
-      if (t === 'handverkar' || t === 'handverker') return '<span class="pill pill-handverkar">Handverkar</span>';
+      if (t === 'hog' || t === 'hoy' || t === 'hog') return '<span class="pill pill-hog">H\u00f8y</span>';
+      if (t === 'sjolv' || t === 'selv') return '<span class="pill pill-sjolv">Selv</span>';
+      if (t === 'handverkar' || t === 'handverker' || t === 'handverker') return '<span class="pill pill-handverkar">H\u00e5ndverker</span>';
       return null;
     }
 
@@ -720,7 +774,7 @@
             if (j >= lines.length || !lines[j].match(/^\|/)) {
               // No table follows — add placeholder
               if (headingText === 'planer') {
-                html += '<div class="empty-table-placeholder">Klikk for \u00e5 leggje til fyrste plan</div>';
+                html += '<div class="empty-table-placeholder">Klikk for \u00e5 legge til f\u00f8rste plan</div>';
               }
             }
           }
@@ -780,7 +834,30 @@
           continue;
         }
         var im = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-        if (im) { html += '<img src="' + im[2] + '" alt="' + im[1] + '" loading="lazy">'; i++; continue; }
+        if (im) {
+          // Collect consecutive images into a grid
+          var images = [];
+          while (i < lines.length) {
+            var imm = lines[i].match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+            if (imm) {
+              images.push({ alt: imm[1], src: imm[2] });
+              i++;
+            } else if (lines[i].trim() === '') {
+              i++;
+            } else {
+              break;
+            }
+          }
+          if (images.length > 0) {
+            html += '<div class="image-grid">';
+            images.forEach(function(img) {
+              html += '<figure class="image-card"><img src="' + img.src + '" alt="' + img.alt + '" loading="lazy">';
+              html += '<figcaption>' + img.alt + '</figcaption></figure>';
+            });
+            html += '</div>';
+          }
+          continue;
+        }
         var pLines = [];
         while (i < lines.length && lines[i].trim() !== '' && !lines[i].match(/^#{1,6}\s/) && !lines[i].match(/^[-*]\s/) && !lines[i].match(/^>\s?/) && !lines[i].match(/^(\*{3,}|-{3,}|_{3,})$/)) { pLines.push(lines[i]); i++; }
         html += '<p>' + parseInline(pLines.join(' ')) + '</p>';
@@ -831,7 +908,7 @@
     function renderLanding() {
       var rooms = sortedRooms();
       var html = '<h1 class="landing-title">Oppussing</h1>';
-      html += '<p class="landing-subtitle">Oversikt over rom og omr&aring;de</p>';
+      html += '<p class="landing-subtitle">Oversikt over rom og omr\u00e5der</p>';
       html += '<div class="card-grid">';
       rooms.forEach(function(r) {
         var stats = getRoomStats(r.markdown);
@@ -839,7 +916,7 @@
         html += '<div class="card-date">Sist oppdatert: ' + formatDate(r.lastModified) + '</div>';
         if (stats.count > 0) {
           html += '<div class="card-stats">';
-          html += '<span class="card-stat">' + stats.count + ' plan' + (stats.count !== 1 ? 'ar' : '') + '</span>';
+          html += '<span class="card-stat">' + stats.count + ' plan' + (stats.count !== 1 ? 'er' : '') + '</span>';
           if (stats.cost > 0) html += '<span class="card-stat">' + stats.cost.toLocaleString('nb-NO') + ' kr</span>';
           html += '</div>';
         }
@@ -854,20 +931,26 @@
     function renderRoom(slug) {
       var room = ROOMS.find(function(r) { return r.slug === slug; });
       if (!room) {
-        document.getElementById('content').innerHTML = '<h1>Ikkje funne</h1><p><a href="#">Tilbake til oversikta</a></p>';
+        document.getElementById('content').innerHTML = '<h1>Ikke funnet</h1><p><a href="#">Tilbake til oversikten</a></p>';
         updateHeaderActions('');
         return;
       }
       var html = renderMarkdown(room.markdown);
-      var dateHtml = '<div class="date-label">Sist oppdatert: ' + formatDate(room.lastModified) + '</div>';
-      html = html.replace(/(<\/h1>)/, '$1' + dateHtml);
+
+      // Build room header: title + subtitle (from blockquote after h1) + date top-right
+      var dateStr = formatDate(room.lastModified);
+      html = html.replace(/(<h1>.*?<\/h1>)(\s*<blockquote><p>(.*?)<\/p><\/blockquote>)?/, function(match, h1, bqBlock, bqText) {
+        var sub = bqText ? '<p class="subtitle">' + bqText + '</p>' : '';
+        return '<div class="room-header"><div class="room-header-left">' + h1 + sub +
+          '</div><span class="date-label">Sist oppdatert: ' + dateStr + '</span></div>';
+      });
 
       // Add upload area if authenticated
       if (hasToken()) {
         html += '<div class="upload-area" id="upload-area" data-slug="' + slug + '">';
         html += '<input type="file" id="upload-input" accept="image/*" multiple>';
         html += '<div class="upload-icon">&#128247;</div>';
-        html += '<p>Dra bilete hit eller klikk for &aring; laste opp</p>';
+        html += '<p>Dra bilder hit eller klikk for &aring; laste opp</p>';
         html += '</div>';
         html += '<div class="progress-bar" id="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>';
         html += '<div class="upload-status" id="upload-status"></div>';
@@ -900,23 +983,23 @@
 
     // Floor mapping
     var FLOOR_MAP = {
-      'astrids-rom': 'oppe',
-      'hannes-rom': 'oppe',
-      'bad-oppe': 'oppe',
-      'soverom': 'oppe'
+      'astrids-rom': 'second',
+      'hannes-rom': 'second',
+      'bad-oppe': 'second',
+      'soverom': 'second'
     };
 
-    function getFloor(slug) { return FLOOR_MAP[slug] || 'nede'; }
+    function getFloor(slug) { return FLOOR_MAP[slug] || 'first'; }
 
     function renderSidebar() {
       var rooms = sortedRooms();
-      var nede = rooms.filter(function(r) { return getFloor(r.slug) === 'nede'; });
-      var oppe = rooms.filter(function(r) { return getFloor(r.slug) === 'oppe'; });
+      var first = rooms.filter(function(r) { return getFloor(r.slug) === 'first'; });
+      var second = rooms.filter(function(r) { return getFloor(r.slug) === 'second'; });
       var ul = document.getElementById('room-list');
-      var html = '<li class="sidebar-group-label">Nede</li>';
-      nede.forEach(function(r) { html += '<li><a href="#' + r.slug + '" data-slug="' + r.slug + '">' + r.name + '</a></li>'; });
-      html += '<li class="sidebar-group-label">Oppe</li>';
-      oppe.forEach(function(r) { html += '<li><a href="#' + r.slug + '" data-slug="' + r.slug + '">' + r.name + '</a></li>'; });
+      var html = '<li class="sidebar-group-label">F\u00f8rste etasje</li>';
+      first.forEach(function(r) { html += '<li><a href="#' + r.slug + '" data-slug="' + r.slug + '">' + r.name + '</a></li>'; });
+      html += '<li class="sidebar-group-label">Andre etasje</li>';
+      second.forEach(function(r) { html += '<li><a href="#' + r.slug + '" data-slug="' + r.slug + '">' + r.name + '</a></li>'; });
       ul.innerHTML = html;
     }
 
@@ -961,7 +1044,7 @@
         var pct = Math.round((i / imageFiles.length) * 100);
         fill.style.width = pct + '%';
         status.className = 'upload-status uploading';
-        status.textContent = 'Lastar opp ' + file.name + ' (' + (i+1) + '/' + imageFiles.length + ')...';
+        status.textContent = 'Laster opp ' + file.name + ' (' + (i+1) + '/' + imageFiles.length + ')...';
         try {
           await uploadImage(file, slug);
         } catch(err) {
@@ -976,8 +1059,8 @@
       fill.style.width = '100%';
       status.className = 'upload-status success';
       status.textContent = imageFiles.length === 1
-        ? imageFiles[0].name + ' lasta opp!'
-        : imageFiles.length + ' bilete lasta opp!';
+        ? imageFiles[0].name + ' lastet opp!'
+        : imageFiles.length + ' bilder lastet opp!';
 
       // Reload room data
       localStorage.removeItem(CACHE_KEY);
@@ -996,7 +1079,7 @@
       setHeaderEditMode(slug);
 
       // Make headings/paragraphs/list items editable
-      content.querySelectorAll('h1, h2, h3, p, li').forEach(function(el) {
+      content.querySelectorAll('h1, h2, h3, p, li, figcaption').forEach(function(el) {
         if (el.closest('.upload-area') || el.classList.contains('date-label')) return;
         if (el.querySelector('img')) return;
         el.setAttribute('contenteditable', 'true');
@@ -1025,13 +1108,20 @@
         });
       });
 
-      // Wrap images in edit overlays
-      content.querySelectorAll('img').forEach(function(img) {
-        if (img.closest('.upload-area') || img.closest('.img-edit-wrap')) return;
-        var wrap = document.createElement('div');
-        wrap.className = 'img-edit-wrap';
-        img.parentNode.insertBefore(wrap, img);
-        wrap.appendChild(img);
+      // Add edit overlays to images (both standalone and in figures)
+      content.querySelectorAll('.image-card, img').forEach(function(el) {
+        if (el.closest('.upload-area') || el.closest('.img-edit-wrap') || el.closest('.img-edit-actions')) return;
+        var img, container;
+        if (el.tagName === 'FIGURE') {
+          img = el.querySelector('img');
+          container = el;
+        } else if (el.tagName === 'IMG' && !el.closest('.image-card')) {
+          img = el;
+          container = el;
+        } else {
+          return;
+        }
+        if (!img) return;
 
         var actions = document.createElement('div');
         actions.className = 'img-edit-actions';
@@ -1060,11 +1150,14 @@
         var delBtn = document.createElement('button');
         delBtn.className = 'img-delete';
         delBtn.textContent = 'Slett';
-        delBtn.addEventListener('click', function() { wrap.remove(); });
+        delBtn.addEventListener('click', function() { container.remove(); });
 
         actions.appendChild(replaceBtn);
         actions.appendChild(delBtn);
-        wrap.appendChild(actions);
+
+        // For figures, make it relative and add actions
+        container.style.position = 'relative';
+        container.appendChild(actions);
       });
 
       // Add bullet list editing — add item button after ULs
@@ -1085,7 +1178,7 @@
 
     function createEmptyPlanTable() {
       var table = document.createElement('table');
-      table.innerHTML = '<thead><tr><th>Kva</th><th>Kompleksitet</th><th>Kostnad</th><th>Utf\u00f8ring</th></tr></thead><tbody></tbody>';
+      table.innerHTML = '<thead><tr><th>Hva</th><th>Kompleksitet</th><th>Kostnad</th><th>Utf\u00f8ring</th></tr></thead><tbody></tbody>';
       return table;
     }
 
@@ -1101,13 +1194,13 @@
             var select = document.createElement('select');
             select.className = 'pill-select ' + cls;
             if (type === 'kompleksitet') {
-              select.innerHTML = '<option>Lav</option><option>Middels</option><option>H\u00f8g</option>';
+              select.innerHTML = '<option>Lav</option><option>Middels</option><option>H\u00f8y</option>';
             } else {
-              select.innerHTML = '<option>Sj\u00f8lv</option><option>Handverkar</option>';
+              select.innerHTML = '<option>Selv</option><option>H\u00e5ndverker</option>';
             }
             select.value = current;
             select.addEventListener('change', function() {
-              var map = {'Lav':'pill-lav','Middels':'pill-middels','H\u00f8g':'pill-hog','Sj\u00f8lv':'pill-sjolv','Handverkar':'pill-handverkar'};
+              var map = {'Lav':'pill-lav','Middels':'pill-middels','H\u00f8y':'pill-hog','Selv':'pill-sjolv','H\u00e5ndverker':'pill-handverkar'};
               this.className = 'pill-select ' + (map[this.value] || 'pill-lav');
             });
             td.innerHTML = '';
@@ -1153,18 +1246,18 @@
         if (hText === 'kompleksitet') {
           var sel = document.createElement('select');
           sel.className = 'pill-select pill-lav';
-          sel.innerHTML = '<option>Lav</option><option>Middels</option><option>H\u00f8g</option>';
+          sel.innerHTML = '<option>Lav</option><option>Middels</option><option>H\u00f8y</option>';
           sel.addEventListener('change', function() {
-            var map = {'Lav':'pill-lav','Middels':'pill-middels','H\u00f8g':'pill-hog'};
+            var map = {'Lav':'pill-lav','Middels':'pill-middels','H\u00f8y':'pill-hog'};
             this.className = 'pill-select ' + (map[this.value] || 'pill-lav');
           });
           td.appendChild(sel);
         } else if (hText === 'utf\u00f8ring' || hText === 'utforing') {
           var sel2 = document.createElement('select');
           sel2.className = 'pill-select pill-sjolv';
-          sel2.innerHTML = '<option>Sj\u00f8lv</option><option>Handverkar</option>';
+          sel2.innerHTML = '<option>Selv</option><option>H\u00e5ndverker</option>';
           sel2.addEventListener('change', function() {
-            var map = {'Sj\u00f8lv':'pill-sjolv','Handverkar':'pill-handverkar'};
+            var map = {'Selv':'pill-sjolv','H\u00e5ndverker':'pill-handverkar'};
             this.className = 'pill-select ' + (map[this.value] || 'pill-sjolv');
           });
           td.appendChild(sel2);
@@ -1204,7 +1297,7 @@
       var saveBtn = document.getElementById('save-btn');
       var cancelBtn = document.getElementById('cancel-btn');
       saveBtn.disabled = true;
-      saveBtn.textContent = 'Lagrar...';
+      saveBtn.textContent = 'Lagrer...';
       cancelBtn.disabled = true;
 
       try {
@@ -1222,7 +1315,7 @@
             method: 'PUT',
             headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
             body: JSON.stringify({
-              message: 'Erstatt bilete i ' + room.name,
+              message: 'Erstatt bilde i' + room.name,
               content: base64Data
             })
           });
@@ -1263,45 +1356,81 @@
       }
     }
 
+    function domElToMarkdown(el) {
+      var md = '';
+      if (el.classList && (el.classList.contains('upload-area') ||
+          el.classList.contains('progress-bar') || el.classList.contains('upload-status') ||
+          el.classList.contains('date-label') || el.classList.contains('add-row-btn') ||
+          el.classList.contains('empty-table-placeholder'))) return '';
+
+      var tag = el.tagName;
+
+      // Room header wrapper
+      if (tag === 'DIV' && el.classList.contains('room-header')) {
+        var h1 = el.querySelector('h1');
+        var sub = el.querySelector('.subtitle');
+        if (h1) md += '# ' + h1.textContent.trim() + '\n\n';
+        if (sub) {
+          var subText = sub.textContent.trim();
+          if (subText) md += '> ' + subText + '\n\n';
+        }
+        return md;
+      }
+
+      if (tag === 'H1') md += '# ' + el.textContent.trim() + '\n\n';
+      else if (tag === 'H2') md += '## ' + el.textContent.trim() + '\n\n';
+      else if (tag === 'H3') md += '### ' + el.textContent.trim() + '\n\n';
+      else if (tag === 'P') {
+        var text = el.textContent.trim();
+        if (text && !el.classList.contains('subtitle')) md += text + '\n\n';
+      }
+      else if (tag === 'BLOCKQUOTE') md += '> ' + el.textContent.trim() + '\n\n';
+      else if (tag === 'UL') {
+        el.querySelectorAll('li').forEach(function(li) {
+          var t = li.textContent.trim();
+          if (t) md += '- ' + t + '\n';
+        });
+        md += '\n';
+      }
+      else if (tag === 'HR') md += '---\n\n';
+      else if (tag === 'IMG') {
+        md += '![' + (el.alt || '') + '](' + el.getAttribute('src') + ')\n\n';
+      }
+      else if (tag === 'DIV' && el.classList.contains('img-edit-wrap')) {
+        var img = el.querySelector('img');
+        if (img) md += '![' + (img.alt || '') + '](' + img.getAttribute('src') + ')\n\n';
+      }
+      else if (tag === 'DIV' && el.classList.contains('image-grid')) {
+        // Process figures inside grid
+        el.querySelectorAll('figure.image-card, .img-edit-wrap').forEach(function(fig) {
+          var img = fig.querySelector('img');
+          if (!img) return;
+          var caption = fig.querySelector('figcaption');
+          var alt = caption ? caption.textContent.trim() : (img.alt || '');
+          md += '![' + alt + '](' + img.getAttribute('src') + ')\n\n';
+        });
+        return md;
+      }
+      else if (tag === 'FIGURE' && el.classList.contains('image-card')) {
+        var img = el.querySelector('img');
+        if (img) {
+          var caption = el.querySelector('figcaption');
+          var alt = caption ? caption.textContent.trim() : (img.alt || '');
+          md += '![' + alt + '](' + img.getAttribute('src') + ')\n\n';
+        }
+      }
+      else if (tag === 'TABLE') {
+        md += tableToMarkdown(el) + '\n';
+      }
+      return md;
+    }
+
     function domToMarkdown() {
       var content = document.getElementById('content');
       var md = '';
       var children = content.children;
       for (var i = 0; i < children.length; i++) {
-        var el = children[i];
-        if (el.classList.contains('upload-area') ||
-            el.classList.contains('progress-bar') || el.classList.contains('upload-status') ||
-            el.classList.contains('date-label')) continue;
-        if (el.classList.contains('add-row-btn')) continue;
-        if (el.classList.contains('empty-table-placeholder')) continue;
-
-        var tag = el.tagName;
-        if (tag === 'H1') md += '# ' + el.textContent.trim() + '\n\n';
-        else if (tag === 'H2') md += '## ' + el.textContent.trim() + '\n\n';
-        else if (tag === 'H3') md += '### ' + el.textContent.trim() + '\n\n';
-        else if (tag === 'P') {
-          var text = el.textContent.trim();
-          if (text) md += text + '\n\n';
-        }
-        else if (tag === 'BLOCKQUOTE') md += '> ' + el.textContent.trim() + '\n\n';
-        else if (tag === 'UL') {
-          el.querySelectorAll('li').forEach(function(li) {
-            var t = li.textContent.trim();
-            if (t) md += '- ' + t + '\n';
-          });
-          md += '\n';
-        }
-        else if (tag === 'HR') md += '---\n\n';
-        else if (tag === 'IMG') {
-          md += '![' + (el.alt || '') + '](' + el.getAttribute('src') + ')\n\n';
-        }
-        else if (tag === 'DIV' && el.classList.contains('img-edit-wrap')) {
-          var img = el.querySelector('img');
-          if (img) md += '![' + (img.alt || '') + '](' + img.getAttribute('src') + ')\n\n';
-        }
-        else if (tag === 'TABLE') {
-          md += tableToMarkdown(el) + '\n';
-        }
+        md += domElToMarkdown(children[i]);
       }
       return md.trimEnd() + '\n';
     }
@@ -1397,11 +1526,11 @@
       var el = document.getElementById('token-status');
       if (hasToken()) {
         el.className = 'token-status connected';
-        el.textContent = '&#10003; Kopla til GitHub';
-        el.innerHTML = '&#10003; Kopla til GitHub';
+        el.textContent = '&#10003; Koblet til GitHub';
+        el.innerHTML = '&#10003; Koblet til GitHub';
       } else {
         el.className = 'token-status disconnected';
-        el.textContent = 'Ikkje kopla til';
+        el.textContent = 'Ikke koblet til';
       }
     }
 
@@ -1413,7 +1542,7 @@
         route();
       } catch(err) {
         document.getElementById('content').innerHTML =
-          '<div class="loading"><p>Kunne ikkje laste data.</p><p style="font-size:var(--font-size-sm);color:var(--color-text-muted)">' +
+          '<div class="loading"><p>Kunne ikke laste data.</p><p style="font-size:var(--font-size-sm);color:var(--color-text-muted)">' +
           err.message + '</p><p style="margin-top:var(--space-md)"><button class="btn" onclick="document.getElementById(\'modal\').classList.add(\'visible\')">Legg til GitHub-token</button></p></div>';
       }
     })();

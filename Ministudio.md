@@ -14,6 +14,6 @@
 - Bæreevne på eksisterende bod
 - Adkomst / trapp opp
 
-## Bilder/inspirasjon
+## Referansebilder
 
 -
