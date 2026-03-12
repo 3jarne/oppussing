@@ -177,6 +177,46 @@
 
     main hr { border: none; border-top: 1px solid var(--color-border); margin: var(--space-xl) 0; }
 
+    main table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--space-md) 0 var(--space-xl);
+      font-size: var(--font-size-sm);
+    }
+
+    main th {
+      text-align: left;
+      font-weight: 600;
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 2px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    main td {
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+
+    main tr:last-child td { border-bottom: none; }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      line-height: 1.6;
+      white-space: nowrap;
+    }
+
+    .pill-lav { background: #e8e8e8; color: #444; }
+    .pill-middels { background: #d0d0d0; color: #333; }
+    .pill-hog { background: #1a1a1a; color: #fff; }
+
     .date-label {
       font-size: var(--font-size-sm);
       color: var(--color-text-muted);
@@ -520,6 +560,14 @@
         .replace(/`([^`]+)`/g, '<code>$1</code>');
     }
 
+    function pillify(text) {
+      var t = text.toLowerCase().replace(/ø/g, 'o').trim();
+      if (t === 'lav') return '<span class="pill pill-lav">Lav</span>';
+      if (t === 'middels') return '<span class="pill pill-middels">Middels</span>';
+      if (t === 'hog' || t === 'høg' || t === 'høy') return '<span class="pill pill-hog">H\u00f8g</span>';
+      return null;
+    }
+
     function renderMarkdown(text) {
       var lines = text.split('\n');
       var html = '';
@@ -530,6 +578,28 @@
         var hm = line.match(/^(#{1,6})\s+(.+)$/);
         if (hm) { html += '<h' + hm[1].length + '>' + parseInline(hm[2]) + '</h' + hm[1].length + '>'; i++; continue; }
         if (/^(\*{3,}|-{3,}|_{3,})$/.test(line.trim())) { html += '<hr>'; i++; continue; }
+        // Table
+        if (line.match(/^\|/)) {
+          var rows = [];
+          while (i < lines.length && lines[i].match(/^\|/)) { rows.push(lines[i]); i++; }
+          if (rows.length >= 2) {
+            var hdr = rows[0].split('|').filter(function(c) { return c.trim() !== ''; }).map(function(c) { return c.trim(); });
+            html += '<table><thead><tr>';
+            hdr.forEach(function(h) { html += '<th>' + parseInline(h) + '</th>'; });
+            html += '</tr></thead><tbody>';
+            for (var r = 2; r < rows.length; r++) {
+              var cells = rows[r].split('|').filter(function(c) { return c.trim() !== ''; }).map(function(c) { return c.trim(); });
+              html += '<tr>';
+              cells.forEach(function(c) {
+                var pill = pillify(c);
+                html += '<td>' + (pill || parseInline(c)) + '</td>';
+              });
+              html += '</tr>';
+            }
+            html += '</tbody></table>';
+          }
+          continue;
+        }
         if (line.match(/^>\s?/)) {
           var bq = [];
           while (i < lines.length && lines[i].match(/^>\s?/)) { bq.push(lines[i].replace(/^>\s?/, '')); i++; }

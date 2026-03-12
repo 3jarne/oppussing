@@ -1,14 +1,17 @@
 # Kjøkken
 
 ## Ideer
-- Fliselegge bak peisen
-- Fliselegge bak benkeplata
-- Male kjøkkenfrontane
-- Fjerne det store skapet over langsida
-- Lage en enkelthylle på toppen av flisene
-- Bytte ut vifte og rør for ventilasjon
-- Lage sittebenk
-- Sette opp skillevegg
+
+| Kva | Nivå |
+|-----|------|
+| Male kjøkkenfrontane | Lav |
+| Fjerne det store skapet over langsida | Lav |
+| Lage en enkelthylle på toppen av flisene | Lav |
+| Lage sittebenk | Lav |
+| Fliselegge bak peisen | Middels |
+| Fliselegge bak benkeplata | Middels |
+| Bytte ut vifte og rør for ventilasjon | Middels |
+| Sette opp skillevegg | Middels |
 
 ## Bilder/inspirasjon
 
