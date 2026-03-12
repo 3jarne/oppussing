@@ -1,7 +1,14 @@
 # Kjøkken
 
 ## Ideer
--
+- Fliselegge bak peisen
+- Fliselegge bak benkeplata
+- Male kjøkkenfrontane
+- Fjerne det store skapet over langsida
+- Lage en enkelthylle på toppen av flisene
+- Bytte ut vifte og rør for ventilasjon
+- Lage sittebenk
+- Sette opp skillevegg
 
 ## Bilder/inspirasjon
 

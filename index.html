@@ -93,7 +93,19 @@
       overflow-y: auto;
     }
 
-    .sidebar ul { list-style: none; }
+    .sidebar ul { list-style: none; margin: 0; }
+
+    .sidebar-group-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+      padding: var(--space-sm) var(--space-lg) var(--space-xs);
+      margin-top: var(--space-md);
+    }
+
+    .sidebar-group-label:first-child { margin-top: 0; }
 
     .sidebar a {
       display: block;
@@ -594,12 +606,26 @@
       if (hasToken()) setupUpload(slug);
     }
 
+    // Floor mapping
+    var FLOOR_MAP = {
+      'astrids-rom': 'oppe',
+      'hannes-rom': 'oppe',
+      'bad-oppe': 'oppe',
+      'soverom': 'oppe'
+    };
+
+    function getFloor(slug) { return FLOOR_MAP[slug] || 'nede'; }
+
     function renderSidebar() {
       var rooms = sortedRooms();
+      var nede = rooms.filter(function(r) { return getFloor(r.slug) === 'nede'; });
+      var oppe = rooms.filter(function(r) { return getFloor(r.slug) === 'oppe'; });
       var ul = document.getElementById('room-list');
-      ul.innerHTML = rooms.map(function(r) {
-        return '<li><a href="#' + r.slug + '" data-slug="' + r.slug + '">' + r.name + '</a></li>';
-      }).join('');
+      var html = '<li class="sidebar-group-label">Nede</li>';
+      nede.forEach(function(r) { html += '<li><a href="#' + r.slug + '" data-slug="' + r.slug + '">' + r.name + '</a></li>'; });
+      html += '<li class="sidebar-group-label">Oppe</li>';
+      oppe.forEach(function(r) { html += '<li><a href="#' + r.slug + '" data-slug="' + r.slug + '">' + r.name + '</a></li>'; });
+      ul.innerHTML = html;
     }
 
     function updateSidebarActive(slug) {
