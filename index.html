@@ -202,6 +202,7 @@
     }
 
     main tr:last-child td { border-bottom: none; }
+    main tr.table-sum td { border-top: 2px solid var(--color-border); font-weight: 600; border-bottom: none; }
 
     .pill {
       display: inline-block;
@@ -216,6 +217,8 @@
     .pill-lav { background: #e8e8e8; color: #444; }
     .pill-middels { background: #d0d0d0; color: #333; }
     .pill-hog { background: #1a1a1a; color: #fff; }
+    .pill-sjolv { background: #e8e8e8; color: #444; }
+    .pill-handverkar { background: #1a1a1a; color: #fff; }
 
     .date-label {
       font-size: var(--font-size-sm);
@@ -561,10 +564,12 @@
     }
 
     function pillify(text) {
-      var t = text.toLowerCase().replace(/ø/g, 'o').trim();
+      var t = text.toLowerCase().replace(/ø/g, 'o').replace(/æ/g, 'ae').trim();
       if (t === 'lav') return '<span class="pill pill-lav">Lav</span>';
       if (t === 'middels') return '<span class="pill pill-middels">Middels</span>';
       if (t === 'hog' || t === 'høg' || t === 'høy') return '<span class="pill pill-hog">H\u00f8g</span>';
+      if (t === 'sjolv' || t === 'selv') return '<span class="pill pill-sjolv">Sj\u00f8lv</span>';
+      if (t === 'handverkar' || t === 'handverker') return '<span class="pill pill-handverkar">Handverkar</span>';
       return null;
     }
 
@@ -587,13 +592,31 @@
             html += '<table><thead><tr>';
             hdr.forEach(function(h) { html += '<th>' + parseInline(h) + '</th>'; });
             html += '</tr></thead><tbody>';
+            var colTotals = [];
+            for (var ci = 0; ci < hdr.length; ci++) colTotals.push(0);
+            var hasSum = false;
             for (var r = 2; r < rows.length; r++) {
               var cells = rows[r].split('|').filter(function(c) { return c.trim() !== ''; }).map(function(c) { return c.trim(); });
               html += '<tr>';
-              cells.forEach(function(c) {
+              cells.forEach(function(c, idx) {
                 var pill = pillify(c);
+                var krMatch = c.match(/^([\d\s]+)\s*kr$/);
+                if (krMatch) { colTotals[idx] += parseInt(krMatch[1].replace(/\s/g, ''), 10); hasSum = true; }
                 html += '<td>' + (pill || parseInline(c)) + '</td>';
               });
+              html += '</tr>';
+            }
+            if (hasSum) {
+              html += '<tr class="table-sum">';
+              for (var ci = 0; ci < hdr.length; ci++) {
+                if (colTotals[ci] > 0) {
+                  html += '<td>' + colTotals[ci].toLocaleString('nb-NO') + ' kr</td>';
+                } else if (ci === 0) {
+                  html += '<td><strong>Totalt</strong></td>';
+                } else {
+                  html += '<td></td>';
+                }
+              }
               html += '</tr>';
             }
             html += '</tbody></table>';
