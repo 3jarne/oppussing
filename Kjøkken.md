@@ -1,5 +1,7 @@
 # Kjøkken
 
+> Vi splitter opp stue og kjøkken, lager sittebenk, samt maler og fliselegger
+
 ## Planer
 
 | Hva | Kompleksitet | Kostnad | Utføring |
